@@ -220,6 +220,11 @@ const menuGroups = [
     title: "Menu",
     items: [
       {
+        icon: UserCircleIcon,
+        name: "Administrador de usuarios",
+        path: "/users",
+      },
+      {
         icon: GridIcon,
         name: "Productos",
         path: "/",

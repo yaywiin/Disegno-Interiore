@@ -15,6 +15,14 @@ const router = createRouter({
       },
     },
     {
+      path: '/users',
+      name: 'Users',
+      component: () => import('../views/Users/UsersView.vue'),
+      meta: {
+        title: 'Administrador de usuarios',
+      },
+    },
+    {
       path: '/add-product',
       name: 'Add Product',
       component: () => import('../views/Products/AddProductView.vue'),
