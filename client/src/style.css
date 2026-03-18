@@ -1,0 +1,314 @@
+/* ============================
+   CSS RESET & BASE
+=============================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* ─── Color Palette — Disegno Interiore ─── */
+  --c-white: #FFFFFF;
+  --c-off-white: #F7F6F4;
+  --c-light: #EEECE9;
+  --c-mid: #C8C6C1;
+  --c-muted: #888580;
+  --c-dark: #1A1917;
+  --c-black: #0D0C0B;
+
+  /* Brand */
+  --c-brand: #9B9861;
+  --c-brand-light: #B8B584;
+  --c-brand-dark: #7A7A4A;
+  --c-brand-faint: rgba(155, 152, 97, 0.08);
+
+  /* Surfaces */
+  --c-bg: var(--c-white);
+  --c-bg-alt: var(--c-off-white);
+  --c-surface: var(--c-light);
+  --c-border: #E0DED9;
+  --c-border-dark: #2A2825;
+
+  /* Text */
+  --c-text: var(--c-dark);
+  --c-text-muted: var(--c-muted);
+
+  /* ─── Typography ─── */
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
+
+  /* ─── Spacing ─── */
+  --section-pad: clamp(96px, 14vw, 180px);
+
+  /* ─── Transitions ─── */
+  --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--c-bg);
+  color: var(--c-text);
+  font-family: var(--font-sans);
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* ============================
+   SCROLLBAR
+=============================== */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--c-light);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--c-brand);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--c-brand-dark);
+}
+
+/* ============================
+   TYPOGRAPHY UTILITIES
+=============================== */
+.serif {
+  font-family: var(--font-serif);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--c-dark);
+}
+
+p {
+  color: var(--c-text-muted);
+  line-height: 1.85;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+
+/* ============================
+   UTILITY CLASSES
+=============================== */
+.container {
+  width: 100%;
+  max-width: 1340px;
+  margin: 0 auto;
+  padding: 0 clamp(24px, 5vw, 88px);
+}
+
+.section {
+  padding: var(--section-pad) 0;
+}
+
+/* Eyebrow label */
+.label {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--c-brand);
+}
+
+/* Thin decorative line */
+.brand-line {
+  display: block;
+  width: 36px;
+  height: 1px;
+  background: var(--c-brand);
+  margin: 14px 0 22px;
+}
+
+/* ============================
+   BUTTONS
+=============================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 40px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  transition: all 0.4s var(--ease);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Primary — dark fill */
+.btn-primary {
+  background: var(--c-dark);
+  color: var(--c-white);
+  border: 1px solid var(--c-dark);
+}
+
+.btn-primary::after {
+  position: absolute;
+  inset: 0;
+  background: var(--c-brand);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.45s var(--ease);
+}
+
+.btn-primary:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.btn-primary span {
+  position: relative;
+  z-index: 1;
+}
+
+/* Outline — transparent */
+.btn-outline {
+  background: transparent;
+  color: var(--c-dark);
+  border: 1px solid var(--c-dark);
+}
+
+.btn-outline:hover {
+  background: var(--c-dark);
+  color: var(--c-white);
+}
+
+/* Outline on dark bg */
+.btn-outline-light {
+  background: transparent;
+  color: var(--c-white);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.btn-outline-light:hover {
+  background: var(--c-white);
+  color: var(--c-dark);
+}
+
+/* ============================
+   REVEAL ANIMATIONS
+=============================== */
+.reveal {
+  opacity: 0;
+  transform: translateY(36px);
+  transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-36px);
+  transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+}
+
+.reveal-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(36px);
+  transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+}
+
+.reveal-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.delay-1 {
+  transition-delay: 0.08s !important;
+}
+
+.delay-2 {
+  transition-delay: 0.18s !important;
+}
+
+.delay-3 {
+  transition-delay: 0.28s !important;
+}
+
+.delay-4 {
+  transition-delay: 0.38s !important;
+}
+
+.delay-5 {
+  transition-delay: 0.5s !important;
+}
+
+.delay-6 {
+  transition-delay: 0.62s !important;
+}
+
+/* ============================
+   PAGE TRANSITIONS
+=============================== */
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.45s var(--ease), transform 0.45s var(--ease);
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-16px);
+}
+
+/* Estilo personalizado/manual*/
+.agregar-al-carrito {
+  background-color: #000000
+}
+
+.agregar-al-carrito:hover {
+  background-color: #B8B584;
+  color: white !important;
+
+}
