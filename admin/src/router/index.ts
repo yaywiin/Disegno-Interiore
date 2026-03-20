@@ -8,6 +8,10 @@ const router = createRouter({
   routes: [
     {
       path: '/',
+      redirect: '/signin',
+    },
+    {
+      path: '/products',
       name: 'Products',
       component: () => import('../views/Products/ProductsView.vue'),
       meta: {
@@ -168,7 +172,18 @@ const router = createRouter({
 })
 
 export default router
+//Para proteger las rutas una vez hecho correctamente el signin
+/*router.beforeEach((to, from, next) => {
+  document.title = `Vue.js ${to.meta.title} | TailAdmin - Vue.js Tailwind CSS Dashboard Template`
 
+  const isAuth = localStorage.getItem('token')
+
+  if (!isAuth && to.path !== '/signin' && to.path !== '/signup') {
+    next('/signin')
+  } else {
+    next()
+  }
+})*/
 router.beforeEach((to, from, next) => {
   document.title = `Vue.js ${to.meta.title} | TailAdmin - Vue.js Tailwind CSS Dashboard Template`
   next()

@@ -19,7 +19,7 @@
         !isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start',
       ]"
     >
-      <router-link to="/" class="logo" @click="isMobileOpen = false">
+      <router-link to="/products" class="logo" @click="isMobileOpen = false">
         <span class="logo-mark"></span>
         <span v-if="isExpanded || isHovered || isMobileOpen" class="logo-text">Disegno<em>Interiore</em></span>
       </router-link>
@@ -227,7 +227,7 @@ const menuGroups = [
       {
         icon: GridIcon,
         name: "Productos",
-        path: "/",
+        path: "/products",
       },
     ],
   },

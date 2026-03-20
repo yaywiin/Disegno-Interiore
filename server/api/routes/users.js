@@ -7,7 +7,7 @@ const router = express.Router()
 router.get('/', async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT id, nombre, usuario, correo, rol, fecha_alta FROM usuarios ORDER BY id ASC'
+      'SELECT id, nombre, usuario, correo, rol, fecha_alta FROM usuarios WHERE deleted_at IS NULL ORDER BY id ASC'
     )
     res.json(result.rows)
   } catch (err) {
@@ -26,13 +26,13 @@ router.post('/', async (req, res) => {
 
   try {
     const saltRounds = 10
-    const contrasena_hash = await bcrypt.hash(contrasena, saltRounds)
+    const contrasenaHasheada = await bcrypt.hash(contrasena, saltRounds)
 
     const result = await pool.query(
-      `INSERT INTO usuarios (nombre, usuario, correo, contrasena_hash, rol)
+      `INSERT INTO usuarios (nombre, usuario, correo, contrasena, rol)
        VALUES ($1, $2, $3, $4, $5)
        RETURNING id, nombre, usuario, correo, rol, fecha_alta`,
-      [nombre, usuario, correo, contrasena_hash, rol]
+      [nombre, usuario, correo, contrasenaHasheada, rol]
     )
 
     res.status(201).json(result.rows[0])
@@ -59,13 +59,13 @@ router.put('/:id', async (req, res) => {
 
     if (contrasena && contrasena.trim() !== '') {
       const saltRounds = 10
-      const contrasena_hash = await bcrypt.hash(contrasena, saltRounds)
-      query = `UPDATE usuarios SET nombre=$1, usuario=$2, correo=$3, contrasena_hash=$4, rol=$5
+      const contrasenaHasheada = await bcrypt.hash(contrasena, saltRounds)
+      query = `UPDATE usuarios SET nombre=$1, usuario=$2, correo=$3, contrasena=$4, rol=$5, updated_at = NOW()
                WHERE id=$6
                RETURNING id, nombre, usuario, correo, rol, fecha_alta`
-      params = [nombre, usuario, correo, contrasena_hash, rol, id]
+      params = [nombre, usuario, correo, contrasenaHasheada, rol, id]
     } else {
-      query = `UPDATE usuarios SET nombre=$1, usuario=$2, correo=$3, rol=$4
+      query = `UPDATE usuarios SET nombre=$1, usuario=$2, correo=$3, rol=$4, updated_at = NOW()
                WHERE id=$5
                RETURNING id, nombre, usuario, correo, rol, fecha_alta`
       params = [nombre, usuario, correo, rol, id]
@@ -93,7 +93,7 @@ router.delete('/:id', async (req, res) => {
 
   try {
     const result = await pool.query(
-      'DELETE FROM usuarios WHERE id=$1 RETURNING id',
+      'UPDATE usuarios SET deleted_at = NOW() WHERE id=$1 RETURNING id',
       [id]
     )
 

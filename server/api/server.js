@@ -24,7 +24,7 @@ const initDB = async () => {
         nombre VARCHAR(100) NOT NULL,
         usuario VARCHAR(50) UNIQUE NOT NULL,
         correo VARCHAR(150) UNIQUE NOT NULL,
-        contrasena_hash TEXT NOT NULL,
+        contrasena TEXT NOT NULL,
         rol VARCHAR(20) NOT NULL CHECK (rol IN ('Administrador', 'Asistente')),
         fecha_alta TIMESTAMPTZ DEFAULT NOW()
       )

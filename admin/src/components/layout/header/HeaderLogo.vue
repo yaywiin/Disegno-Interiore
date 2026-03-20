@@ -1,5 +1,5 @@
 <template>
-  <router-link to="/" class="lg:hidden logo">
+  <router-link to="/products" class="lg:hidden logo">
     <span class="logo-mark"></span>
     <span class="logo-text">Disegno<em>Interiore</em></span>
   </router-link>

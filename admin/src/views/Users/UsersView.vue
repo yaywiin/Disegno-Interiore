@@ -12,9 +12,23 @@
         </button>
       </div>
       
+      <!-- Error global -->
+      <div v-if="error && !isModalOpen" class="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700 dark:bg-red-500/10 dark:border-red-500/30 dark:text-red-400">
+        ⚠️ {{ error }}
+      </div>
+
       <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div class="p-0 sm:p-0">
+          <!-- Cargando -->
+          <div v-if="loading" class="flex items-center justify-center py-12">
+            <svg class="animate-spin h-6 w-6 text-brand-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+            </svg>
+            <span class="ml-2 text-sm text-gray-500">Cargando usuarios...</span>
+          </div>
           <UsersTable 
+            v-else
             :users="users" 
             @view="openViewModal"
             @edit="openEditModal"
@@ -134,6 +148,11 @@
               </div>
             </div>
 
+            <!-- Error en modal -->
+            <div v-if="error" class="mt-3 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700 dark:bg-red-500/10 dark:border-red-500/30 dark:text-red-400">
+              ⚠️ {{ error }}
+            </div>
+
             <div class="mt-6 flex justify-end gap-3">
               <button
                 type="button"
@@ -158,25 +177,20 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { Plus, Eye, EyeOff } from "lucide-vue-next";
 import AdminLayout from "@/components/layout/AdminLayout.vue";
 import UsersTable from "@/components/tables/users/UsersTable.vue";
 import Modal from "@/components/ui/Modal.vue";
 
-const users = ref([
-  {
-    id: "USR-001",
-    nombre: "Elmer Mendoza",
-    usuario: "elmermndz",
-    correo: "elmer@example.com",
-    rol: "Administrador",
-    fechaAlta: new Date().toISOString().split('T')[0]
-  }
-]);
+const API_URL = 'http://localhost:3001/api/users'
+
+const users = ref([]);
+const loading = ref(false);
+const error = ref('');
 
 const isModalOpen = ref(false);
-const modalMode = ref('add'); // 'add', 'edit', 'view'
+const modalMode = ref('add');
 const showPassword = ref(true);
 const form = ref({
   id: '',
@@ -188,24 +202,38 @@ const form = ref({
   fechaAlta: ''
 });
 
+// ── Cargar usuarios desde la API ──────────────────────────────────────────────
+const fetchUsers = async () => {
+  loading.value = true;
+  error.value = '';
+  try {
+    const res = await fetch(API_URL);
+    if (!res.ok) throw new Error('Error al obtener usuarios');
+    const data = await res.json();
+    users.value = data.map(u => ({
+      ...u,
+      fechaAlta: u.fecha_alta ? new Date(u.fecha_alta).toLocaleDateString('es-MX') : ''
+    }));
+  } catch (err) {
+    error.value = err.message;
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(fetchUsers);
+
+// ── Modales ───────────────────────────────────────────────────────────────────
 const openAddModal = () => {
   modalMode.value = 'add';
-  form.value = {
-    id: '',
-    nombre: '',
-    usuario: '',
-    correo: '',
-    contrasena: '',
-    rol: 'Asistente',
-    fechaAlta: ''
-  };
+  form.value = { id: '', nombre: '', usuario: '', correo: '', contrasena: '', rol: 'Asistente', fechaAlta: '' };
   showPassword.value = true;
   isModalOpen.value = true;
 };
 
 const openEditModal = (user) => {
   modalMode.value = 'edit';
-  form.value = { ...user };
+  form.value = { ...user, contrasena: '' };
   showPassword.value = false;
   isModalOpen.value = true;
 };
@@ -220,28 +248,55 @@ const closeModal = () => {
   isModalOpen.value = false;
 };
 
-const deleteUser = (userToDelete) => {
-  if (confirm(`¿Estás seguro de que deseas borrar a ${userToDelete.nombre}?`)) {
-    users.value = users.value.filter(u => u.id !== userToDelete.id);
-  }
-};
+// ── Guardar (crear o editar) ──────────────────────────────────────────────────
+const saveUser = async () => {
+  error.value = '';
+  try {
+    const payload = {
+      nombre: form.value.nombre,
+      usuario: form.value.usuario,
+      correo: form.value.correo,
+      rol: form.value.rol,
+      ...(form.value.contrasena ? { contrasena: form.value.contrasena } : {})
+    };
 
-const saveUser = () => {
-  if (modalMode.value === 'add') {
-    // Generar un id simple y la fecha de alta
-    const newId = `USR-00${users.value.length + 1}`;
-    users.value.push({
-      ...form.value,
-      id: newId,
-      fechaAlta: new Date().toISOString().split('T')[0]
-    });
-  } else if (modalMode.value === 'edit') {
-    const index = users.value.findIndex(u => u.id === form.value.id);
-    if (index !== -1) {
-      users.value[index] = { ...form.value };
+    let res;
+    if (modalMode.value === 'add') {
+      if (!form.value.contrasena) { error.value = 'La contraseña es requerida'; return; }
+      res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } else {
+      res = await fetch(`${API_URL}/${form.value.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
     }
+
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || 'Error al guardar usuario');
+    }
+
+    await fetchUsers();
+    closeModal();
+  } catch (err) {
+    error.value = err.message;
   }
-  closeModal();
 };
 
+// ── Eliminar ──────────────────────────────────────────────────────────────────
+const deleteUser = async (userToDelete) => {
+  if (!confirm(`¿Estás seguro de que deseas borrar a ${userToDelete.nombre}?`)) return;
+  try {
+    const res = await fetch(`${API_URL}/${userToDelete.id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error('Error al eliminar usuario');
+    await fetchUsers();
+  } catch (err) {
+    error.value = err.message;
+  }
+};
 </script>

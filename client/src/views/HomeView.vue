@@ -739,10 +739,10 @@ const stats = [
 }
 .stat-label {
   font-size: 10px;
-  font-weight: 500;
+  font-weight: bold;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.3);
+  color: white;
 }
 
 /* ================================================================

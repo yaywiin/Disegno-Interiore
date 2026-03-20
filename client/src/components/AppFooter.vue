@@ -46,7 +46,7 @@
         <!-- Instagram -->
         <a class="social-icon" aria-label="Instagram">
           <div class="icon-circle"></div>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
             <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
             <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
@@ -55,14 +55,26 @@
         <!-- Pinterest -->
         <a class="social-icon" aria-label="Pinterest">
           <div class="icon-circle"></div>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2C6.477 2 2 6.477 2 12c0 4.237 2.636 7.855 6.356 9.312-.088-.791-.167-2.005.035-2.868.181-.78 1.172-4.97 1.172-4.97s-.299-.6-.299-1.486c0-1.39.806-2.428 1.81-2.428.852 0 1.263.64 1.263 1.408 0 .858-.546 2.14-.828 3.33-.236.995.5 1.808 1.48 1.808 1.77 0 3.134-1.868 3.134-4.562 0-2.384-1.714-4.052-4.185-4.052-2.85 0-4.52 2.138-4.52 4.34 0 .858.33 1.78.742 2.278.081.099.093.187.069.289l-.24 1.002c-.035.146-.115.176-.264.107-1.026-.475-1.666-1.96-1.666-3.155 0-2.57 1.868-4.925 5.378-4.925 2.82 0 5.015 2.01 5.015 4.697 0 2.802-1.766 5.056-4.218 5.056-.824 0-1.598-.428-1.862-.931l-.508 1.933c-.183.7-1.018 2.083-1.486 2.723A10.027 10.027 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"></path>
-          </svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#fffafa"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M8 20l4 -9" />
+              <path d="M10.7 14c.437 1.263 1.43 2 2.55 2c2.071 0 3.75 -1.554 3.75 -4a5 5 0 1 0 -9.7 1.7" />
+              <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+            </svg>
         </a>
         <!-- Facebook -->
         <a class="social-icon" aria-label="Facebook">
            <div class="icon-circle"></div>
-           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
           </svg>
         </a>
@@ -133,7 +145,7 @@
 .brand-tagline {
   font-size: 13px;
   line-height: 1.7;
-  color: rgba(255,255,255,0.35);
+  color: white;
   text-align: right;
 }
 
@@ -164,11 +176,11 @@
 .footer-link {
   font-size: 13px;
   font-weight: 300;
-  color: rgba(255,255,255,0.45);
+  color: white;
   cursor: pointer;
   transition: color 0.3s;
 }
-.footer-link:hover { color: rgba(255,255,255,0.9); }
+.footer-link:hover { color: rgba(152, 150, 150, 0.9); }
 
 .footer-bottom {
   display: flex;
@@ -182,7 +194,7 @@
 .footer-copy {
   font-size: 11px;
   font-weight: 300;
-  color: rgba(255,255,255,0.25);
+  color: white;
   letter-spacing: 0.08em;
 }
 
