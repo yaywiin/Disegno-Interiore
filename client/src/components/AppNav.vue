@@ -2,9 +2,8 @@
   <header :class="['navbar', { scrolled: isScrolled, 'menu-open': menuOpen, 'theme-dark-bg': needsLightText }]">
     <div class="nav-inner container">
       <!-- Logo -->
-      <router-link to="/" class="logo" @click="menuOpen = false">
-        <span class="logo-mark"></span>
-        <span class="logo-text">Disegno<em>Interiore</em></span>
+      <router-link to="/" @click="menuOpen = false">
+        <AppLogo :theme="needsLightText ? 'dark' : 'light'" size="small" />
       </router-link>
 
       <!-- Desktop Nav -->
@@ -63,6 +62,7 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useCart } from '../composables/useCart'
+import AppLogo from './AppLogo.vue'
 
 const { cartItemCount, toggleDrawer } = useCart()
 const route = useRoute()
@@ -108,42 +108,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   gap: 40px;
 }
 
-/* Logo */
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  text-decoration: none;
-  margin-right: auto;
-}
-.logo-mark {
-  width: 22px;
-  height: 22px;
-  border: 1.5px solid var(--c-brand);
-  transform: rotate(45deg);
-  flex-shrink: 0;
-  transition: background 0.3s;
-}
-.logo:hover .logo-mark {
-  background: var(--c-brand);
-}
-.logo-text {
-  font-family: var(--font-sans);
-  font-size: 15px;
-  font-weight: 300;
-  letter-spacing: 0.12em;
-  color: var(--c-dark);
-  text-transform: uppercase;
-}
-.logo-text em {
-  font-style: italic;
-  font-family: var(--font-serif);
-  font-weight: 400;
-  letter-spacing: 0.05em;
-  text-transform: none;
-  color: var(--c-brand);
-  margin-left: 2px;
-}
+/* Logo styles removed in favor of AppLogo component */
 
 /* Nav Links */
 .nav-links {
@@ -279,10 +244,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
 /* ================================================================
    DYNAMIC LIGHT TEXT (When over dark Home hero)
 ================================================================ */
-.navbar.theme-dark-bg .logo-text { color: var(--c-white); }
-.navbar.theme-dark-bg .logo-text em { color: var(--c-brand-light); }
-.navbar.theme-dark-bg .logo-mark { border-color: var(--c-brand-light); }
-.navbar.theme-dark-bg .logo:hover .logo-mark { background: var(--c-brand-light); }
+/* Replaced by AppLogo logic */
 
 .navbar.theme-dark-bg .cart-btn { color: var(--c-white); }
 .navbar.theme-dark-bg .cart-btn:hover { color: var(--c-brand-light); }

@@ -19,9 +19,8 @@
         !isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start',
       ]"
     >
-      <router-link to="/products" class="logo" @click="isMobileOpen = false">
-        <span class="logo-mark"></span>
-        <span v-if="isExpanded || isHovered || isMobileOpen" class="logo-text">Disegno<em>Interiore</em></span>
+      <router-link to="/products" @click="isMobileOpen = false">
+        <AdminLogo :size="isExpanded || isHovered || isMobileOpen ? 'medium' : 'small'" />
       </router-link>
     </div>
     <div
@@ -192,6 +191,7 @@
 <script setup>
 import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
+import AdminLogo from "@/components/common/AdminLogo.vue";
 
 import {
   GridIcon,

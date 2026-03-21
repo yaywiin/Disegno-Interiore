@@ -6,9 +6,8 @@
       <div class="flex flex-col flex-1 w-full lg:w-1/2 px-6 py-10 sm:px-12 justify-center">
         <!-- Logo -->
         <div class="mb-10">
-          <router-link to="/" class="logo">
-            <span class="logo-mark"></span>
-            <span class="logo-text">Disegno<em>Interiore</em></span>
+          <router-link to="/">
+            <AdminLogo size="xl" />
           </router-link>
         </div>
 
@@ -167,9 +166,9 @@
   </FullScreenLayout>
 </template>
 
-<script setup lang="ts">
 import { ref } from 'vue'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
+import AdminLogo from '@/components/common/AdminLogo.vue'
 
 const email = ref('')
 const password = ref('')

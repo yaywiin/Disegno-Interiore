@@ -79,7 +79,7 @@
       </div>
 
       <!-- Brand watermark -->
-      <div class="hero-watermark">Disegno</div>
+      <div class="hero-watermark">DI</div>
 
       <!-- Scroll indicator -->
       <div class="scroll-indicator">

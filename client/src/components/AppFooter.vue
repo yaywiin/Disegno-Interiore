@@ -2,8 +2,7 @@
   <footer class="footer">
     <div class="footer-top-bar container">
       <div class="footer-brand">
-        <div class="brand-mark"></div>
-        <span class="brand-name">Disegno<em>Interiore</em></span>
+        <AppLogo theme="dark" size="medium" />
       </div>
       <p class="brand-tagline">Mobiliario que define espacios.<br>Diseño que perdura en el tiempo.</p>
     </div>
@@ -83,7 +82,8 @@
   </footer>
 </template>
 
-<script setup></script>
+<script setup>import AppLogo from './AppLogo.vue'
+</script>
 
 <style scoped>
 .footer {
@@ -113,35 +113,7 @@
   flex-wrap: wrap;
 }
 
-.footer-brand {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-.brand-mark {
-  width: 24px;
-  height: 24px;
-  border: 1.5px solid var(--c-brand);
-  transform: rotate(45deg);
-  flex-shrink: 0;
-}
-.brand-name {
-  font-family: var(--font-sans);
-  font-size: 16px;
-  font-weight: 300;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--c-white);
-}
-.brand-name em {
-  font-style: italic;
-  font-family: var(--font-serif);
-  font-weight: 400;
-  letter-spacing: 0.05em;
-  text-transform: none;
-  color: var(--c-brand);
-  margin-left: 2px;
-}
+/* Brand styles removed in favor of AppLogo component */
 .brand-tagline {
   font-size: 13px;
   line-height: 1.7;
