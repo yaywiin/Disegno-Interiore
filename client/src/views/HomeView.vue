@@ -107,16 +107,17 @@
         </div>
 
         <div class="featured-grid">
-          <div
+          <router-link
             v-for="(item, i) in featured"
             :key="item.id"
             class="featured-card reveal"
             :class="`delay-${i + 1}`"
+            :to="`/tienda/${item.id}`"
           >
             <div class="card-img-wrap">
               <img :src="item.img" :alt="item.name" class="card-img" />
               <div class="card-overlay">
-                <router-link to="/tienda" class="btn btn-outline-light card-btn">Ver pieza</router-link>
+                <span class="btn btn-outline-light card-btn">Ver pieza</span>
               </div>
               <span class="card-index">0{{ i + 1 }}</span>
             </div>
@@ -126,7 +127,7 @@
               </div>
               <h3 class="card-name">{{ item.name }}</h3>
             </div>
-          </div>
+          </router-link>
         </div>
 
         <div class="featured-cta reveal">
@@ -630,7 +631,12 @@ const stats = [
   grid-template-columns: repeat(4, 1fr);
   gap: 2px;
 }
-.featured-card { cursor: pointer; }
+.featured-card { 
+  cursor: pointer; 
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
 .card-img-wrap {
   position: relative;
   overflow: hidden;
@@ -658,7 +664,19 @@ const stats = [
   transition: opacity 0.4s;
 }
 .featured-card:hover .card-overlay { opacity: 1; }
-.card-btn { font-size: 10px; padding: 11px 28px; }
+.card-btn { font-size: 10px; padding: 11px 28px; border: 1px solid var(--c-white); color: var(--c-white); }
+
+@media (max-width: 1024px) {
+  .card-overlay {
+    opacity: 1;
+    background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 40%);
+    align-items: flex-end;
+    padding-bottom: 20px;
+  }
+  .card-btn {
+    display: none;
+  }
+}
 .card-index {
   position: absolute;
   bottom: 16px;

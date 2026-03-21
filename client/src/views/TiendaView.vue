@@ -43,16 +43,17 @@
       <div class="container">
         <p class="results-count">{{ filteredProducts.length }} piezas encontradas</p>
         <div class="products-grid" v-if="filteredProducts.length">
-          <div
+          <router-link
             class="product-card reveal"
             :class="`delay-${(i % 4) + 1}`"
             v-for="(p, i) in filteredProducts"
             :key="p.id"
+            :to="`/tienda/${p.id}`"
           >
             <div class="product-img-wrap">
               <img :src="p.img" :alt="p.name" class="product-img" />
               <div class="product-overlay">
-                <router-link :to="`/tienda/${p.id}`" class="btn btn-outline-light product-btn">Ver detalles</router-link>
+                <span class="btn btn-outline-light product-btn">Ver detalles</span>
               </div>
               <div class="product-badge" v-if="p.badge">{{ p.badge }}</div>
             </div>
@@ -69,7 +70,7 @@
                 {{ formatPrice(p.price) }}
               </p>
             </div>
-          </div>
+          </router-link>
         </div>
         <div class="empty-state" v-else>
           <span class="empty-icon">◇</span>
@@ -225,7 +226,12 @@ const filteredProducts = computed(() => {
   grid-template-columns: repeat(4, 1fr);
   gap: 32px;
 }
-.product-card { cursor: pointer; }
+.product-card { 
+  cursor: pointer; 
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
 .product-img-wrap {
   position: relative;
   overflow: hidden;
@@ -253,7 +259,19 @@ const filteredProducts = computed(() => {
   transition: opacity 0.4s;
 }
 .product-card:hover .product-overlay { opacity: 1; }
-.product-btn { font-size: 10px; padding: 11px 24px; }
+.product-btn { font-size: 10px; padding: 11px 24px; border: 1px solid var(--c-white); color: var(--c-white); }
+
+@media (max-width: 1024px) {
+  .product-overlay {
+    opacity: 1;
+    background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 40%);
+    align-items: flex-end;
+    padding-bottom: 20px;
+  }
+  .product-btn {
+    display: none; /* Hide button on mobile, card is clickable */
+  }
+}
 
 .product-badge {
   position: absolute;
