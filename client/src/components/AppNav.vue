@@ -93,7 +93,8 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   transition: padding 0.5s ease, background 0.5s ease, border-bottom 0.5s ease, box-shadow 0.5s ease;
   border-bottom: 1px solid transparent;
 }
-.navbar.scrolled {
+.navbar.scrolled,
+.navbar.menu-open {
   padding: 18px 0;
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(24px);
@@ -236,6 +237,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
 .mobile-cta { margin-top: 8px; }
 
 @media (max-width: 900px) {
+  .nav-inner { justify-content: space-between; }
   .nav-links, .nav-cta, .nav-actions { display: none; }
   .burger { display: flex; }
   .mobile-menu { display: flex; }
