@@ -4,6 +4,7 @@
   </router-link>
 </template>
 
+<script setup>
 import { RouterLink } from 'vue-router'
 import AdminLogo from '@/components/common/AdminLogo.vue'
 </script>

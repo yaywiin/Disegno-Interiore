@@ -30,8 +30,20 @@ const router = createRouter({
       path: '/add-product',
       name: 'Add Product',
       component: () => import('../views/Products/AddProductView.vue'),
+      meta: { title: 'Añadir Producto' },
+    },
+    {
+      path: '/edit-product/:id',
+      name: 'Edit Product',
+      component: () => import('../views/Products/EditProductView.vue'),
+      meta: { title: 'Editar Producto' },
+    },
+    {
+      path: '/categorias',
+      name: 'Categorias',
+      component: () => import('../views/Categorias/CategoriasView.vue'),
       meta: {
-        title: 'Añadir Producto',
+        title: 'Categorías',
       },
     },
     {

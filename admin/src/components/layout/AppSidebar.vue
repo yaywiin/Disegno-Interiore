@@ -229,6 +229,11 @@ const menuGroups = [
         name: "Productos",
         path: "/products",
       },
+      {
+        icon: ListIcon,
+        name: "Categorías",
+        path: "/categorias",
+      },
     ],
   },
 ];

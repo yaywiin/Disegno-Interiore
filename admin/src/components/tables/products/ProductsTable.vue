@@ -16,10 +16,13 @@
               <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Precio</p>
             </th>
             <th class="px-5 py-3 text-left sm:px-6">
+              <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Descuento</p>
+            </th>
+            <th class="px-5 py-3 text-left sm:px-6">
               <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Categorías</p>
             </th>
             <th class="px-5 py-3 text-left sm:px-6">
-              <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Fecha de Alta</p>
+              <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Alta</p>
             </th>
             <th class="px-5 py-3 text-center sm:px-6">
               <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Acciones</p>
@@ -27,7 +30,13 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+          <tr v-if="loading">
+            <td colspan="7" class="px-5 py-8 text-center sm:px-6">
+              <p class="text-gray-400 text-theme-sm">Cargando productos…</p>
+            </td>
+          </tr>
           <tr
+            v-else
             v-for="product in products"
             :key="product.id"
             class="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-white/[0.05]"
@@ -39,43 +48,65 @@
               <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90">{{ product.nombre }}</p>
             </td>
             <td class="px-5 py-4 sm:px-6">
-              <p class="text-gray-500 text-theme-sm dark:text-gray-400">${{ product.precio.toFixed(2) }}</p>
+              <div v-if="product.descuento > 0" class="flex flex-col">
+                <span class="text-xs text-gray-400 line-through dark:text-gray-500">${{ Number(product.precio).toFixed(2) }}</span>
+                <span class="font-medium text-success-600 dark:text-success-500">${{ (Number(product.precio) * (1 - Number(product.descuento)/100)).toFixed(2) }}</span>
+              </div>
+              <p v-else class="text-gray-500 text-theme-sm dark:text-gray-400">${{ Number(product.precio).toFixed(2) }}</p>
+            </td>
+            <td class="px-5 py-4 sm:px-6">
+              <span
+                v-if="product.descuento > 0"
+                class="inline-flex items-center rounded-full bg-error-50 px-2 py-0.5 text-xs font-medium text-error-700 dark:bg-error-500/10 dark:text-error-400"
+              >
+                -{{ Number(product.descuento) }}%
+              </span>
+              <span v-else class="text-gray-400 text-xs">—</span>
             </td>
             <td class="px-5 py-4 sm:px-6">
               <div class="flex flex-wrap gap-1">
                 <span
-                  v-for="cat in product.categorias"
+                  v-for="cat in (product.categorias || [])"
                   :key="cat"
                   class="rounded-md bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700 dark:bg-brand-500/15 dark:text-brand-400"
                 >
                   {{ cat }}
                 </span>
+                <span v-if="!product.categorias || product.categorias.length === 0" class="text-gray-400 text-xs">—</span>
               </div>
             </td>
             <td class="px-5 py-4 sm:px-6">
-              <p class="text-gray-500 text-theme-sm dark:text-gray-400">{{ product.fechaAlta }}</p>
+              <p class="text-gray-500 text-theme-sm dark:text-gray-400">{{ formatDate(product.created_at) }}</p>
             </td>
             <td class="px-5 py-4 sm:px-6">
               <div class="flex items-center justify-center gap-3">
                 <button
                   class="text-gray-500 hover:text-brand-500 dark:text-gray-400 dark:hover:text-brand-500 transition-colors"
                   title="Ver"
+                  @click="$emit('view', product)"
                 >
                   <Eye class="w-5 h-5" />
                 </button>
                 <button
                   class="text-gray-500 hover:text-blue-500 dark:text-gray-400 dark:hover:text-blue-500 transition-colors"
                   title="Editar"
+                  @click="$emit('edit', product)"
                 >
                   <Pencil class="w-5 h-5" />
                 </button>
                 <button
                   class="text-gray-500 hover:text-error-500 dark:text-gray-400 dark:hover:text-error-500 transition-colors"
                   title="Borrar"
+                  @click="$emit('delete', product)"
                 >
                   <Trash2 class="w-5 h-5" />
                 </button>
               </div>
+            </td>
+          </tr>
+          <tr v-if="!loading && products.length === 0">
+            <td colspan="7" class="px-5 py-8 text-center sm:px-6">
+              <p class="text-gray-500 text-theme-sm dark:text-gray-400">No hay productos registrados</p>
             </td>
           </tr>
         </tbody>
@@ -85,83 +116,28 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import { Eye, Pencil, Trash2 } from 'lucide-vue-next'
 
-const products = ref([
-  {
-    id: 'PRD-001',
-    nombre: 'Silla Ergonómica Pro',
-    precio: 250.0,
-    categorias: ['Muebles', 'Oficina'],
-    fechaAlta: '2025-10-15',
+defineProps({
+  products: {
+    type: Array,
+    required: true,
+    default: () => []
   },
-  {
-    id: 'PRD-002',
-    nombre: 'Escritorio Elevable Automático',
-    precio: 450.0,
-    categorias: ['Muebles', 'Oficina', 'Premium'],
-    fechaAlta: '2025-10-12',
-  },
-  {
-    id: 'PRD-003',
-    nombre: 'Monitor 4K 27"',
-    precio: 320.5,
-    categorias: ['Tecnología', 'Monitores'],
-    fechaAlta: '2025-10-10',
-  },
-  {
-    id: 'PRD-004',
-    nombre: 'Teclado Mecánico Inalámbrico',
-    precio: 120.0,
-    categorias: ['Tecnología', 'Accesorios'],
-    fechaAlta: '2025-10-09',
-  },
-  {
-    id: 'PRD-005',
-    nombre: 'Mouse Vertical Óptico',
-    precio: 45.99,
-    categorias: ['Tecnología', 'Accesorios'],
-    fechaAlta: '2025-10-08',
-  },
-  {
-    id: 'PRD-006',
-    nombre: 'Lámpara LED de Escritorio',
-    precio: 35.0,
-    categorias: ['Iluminación', 'Oficina'],
-    fechaAlta: '2025-10-05',
-  },
-  {
-    id: 'PRD-007',
-    nombre: 'Archivador Metálico 3 Cajones',
-    precio: 150.0,
-    categorias: ['Almacenamiento', 'Oficina'],
-    fechaAlta: '2025-10-02',
-  },
-  {
-    id: 'PRD-008',
-    nombre: 'Soporte Dual para Monitores',
-    precio: 65.0,
-    categorias: ['Accesorios', 'Ergonomía'],
-    fechaAlta: '2025-09-30',
-  },
-  {
-    id: 'PRD-009',
-    nombre: 'Audífonos con Cancelación de Ruido',
-    precio: 199.99,
-    categorias: ['Audio', 'Tecnología'],
-    fechaAlta: '2025-09-28',
-  },
-  {
-    id: 'PRD-010',
-    nombre: 'Silla de Oficina Básica',
-    precio: 85.0,
-    categorias: ['Muebles', 'Oficina'],
-    fechaAlta: '2025-09-25',
-  },
-])
-</script>
+  loading: {
+    type: Boolean,
+    default: false
+  }
+})
 
-<style scoped>
-/* Add any additional styles here if needed */
-</style>
+defineEmits(['view', 'edit', 'delete'])
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return '—'
+  const d = new Date(dateStr)
+  const dd = String(d.getDate()).padStart(2, '0')
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const yyyy = d.getFullYear()
+  return `${dd}/${mm}/${yyyy}`
+}
+</script>
