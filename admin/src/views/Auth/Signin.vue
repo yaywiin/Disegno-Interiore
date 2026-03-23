@@ -166,6 +166,7 @@
   </FullScreenLayout>
 </template>
 
+<script setup>
 import { ref } from 'vue'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import AdminLogo from '@/components/common/AdminLogo.vue'
