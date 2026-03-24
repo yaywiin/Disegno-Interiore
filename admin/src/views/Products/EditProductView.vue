@@ -184,6 +184,72 @@
             </dl>
           </div>
 
+          <!-- Media -->
+          <div class="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+            <h3 class="text-base font-semibold text-gray-800 dark:text-white/90 mb-5">Media</h3>
+            <div class="space-y-6">
+              <!-- Imagen Principal -->
+              <div>
+                <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Principal</label>
+                <div
+                  class="relative flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-4 text-center transition-colors hover:border-brand-400 hover:bg-brand-50/30 dark:border-gray-700 dark:bg-gray-800/50 dark:hover:border-brand-500"
+                  @dragover.prevent
+                  @drop.prevent="onDropMainImage"
+                >
+                  <!-- input cubre todo el area para capturar el click directo -->
+                  <input
+                    v-if="!mainImagePreview"
+                    type="file" accept=".jpg,.jpeg,.png"
+                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    @change="onMainImageChange"
+                  />
+                  <template v-if="mainImagePreview">
+                    <img :src="mainImagePreview" alt="Principal" class="w-full rounded-lg object-contain bg-white dark:bg-gray-900" style="max-height: 120px;" />
+                    <button type="button" @click.stop="clearMainImage" class="mt-2 text-xs text-error-500 hover:underline">Quitar imagen</button>
+                  </template>
+                  <template v-else>
+                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+                      <ImageIcon class="w-5 h-5 text-gray-400" />
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1 dark:text-gray-400">Clic para subir</p>
+                  </template>
+                </div>
+              </div>
+
+              <!-- Galería -->
+              <div>
+                <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Galería</label>
+                <div
+                  class="relative flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-4 text-center transition-colors hover:border-brand-400 hover:bg-brand-50/30 dark:border-gray-700 dark:bg-gray-800/50 dark:hover:border-brand-500"
+                  @dragover.prevent
+                  @drop.prevent="onDropGallery"
+                >
+                  <!-- input absoluto que captura el clic sobre el area -->
+                  <input
+                    type="file" accept=".jpg,.jpeg,.png" multiple
+                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    @change="onGalleryChange"
+                  />
+                  <template v-if="galleryPreviews.length > 0">
+                    <div class="flex flex-wrap gap-2 justify-center relative z-20">
+                      <div v-for="(src, i) in galleryPreviews" :key="i" class="relative">
+                        <img :src="src" class="h-12 w-12 rounded-md object-cover ring-1 ring-gray-200 dark:ring-gray-700" />
+                        <button type="button" @click.stop="removeGalleryImage(i)" class="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-error-500 text-white text-[10px] leading-none z-30">✕</button>
+                      </div>
+                    </div>
+                    <button type="button" @click.stop="clearGallery" class="mt-3 text-xs text-error-500 hover:underline relative z-20">Limpiar galería</button>
+                  </template>
+                  <template v-else>
+                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+                      <Images class="w-5 h-5 text-gray-400" />
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1 dark:text-gray-400">Clic para añadir</p>
+                  </template>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
 
       </form>
@@ -194,10 +260,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { ArrowLeft, ChevronDown, X } from 'lucide-vue-next'
+import { ArrowLeft, ChevronDown, X, ImageIcon, Images } from 'lucide-vue-next'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 
 const API = 'http://localhost:3001/api'
+const authHeaders = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` })
 const router = useRouter()
 const route  = useRoute()
 const id     = route.params.id
@@ -214,10 +281,70 @@ const form = ref({
   created_at: null, updated_at: null,
 })
 
+// ── Image helpers ───────────────────────────────
+const API_URL = 'http://localhost:3001/api'
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload  = e => resolve(e.target.result)
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
+
+// ── Image – main ─────────────────────────────
+const mainImageFile    = ref(null)    // File object si se subió una nueva
+const mainImagePreview = ref(null)    // URL para preview (blob: o Cloudinary URL)
+const existingMainImage = ref('')     // URL de Cloudinary ya guardada en BD
+
+function onMainImageChange(e) { const f = e.target.files?.[0]; if (f) setMainImage(f) }
+function onDropMainImage(e)   { const f = e.dataTransfer.files?.[0]; if (f) setMainImage(f) }
+function setMainImage(file) {
+  mainImageFile.value    = file
+  mainImagePreview.value = URL.createObjectURL(file)
+}
+function clearMainImage() {
+  mainImageFile.value     = null
+  mainImagePreview.value  = null
+  existingMainImage.value = ''
+}
+
+// ── Image – gallery ───────────────────────────
+const galleryNewFiles   = ref([])   // File[] recién seleccionados
+const galleryPreviews   = ref([])   // URLs para preview (blob: o Cloudinary)
+const galleryExisting   = ref([])   // URLs de Cloudinary ya en BD
+
+function onGalleryChange(e)  { addGalleryFiles(Array.from(e.target.files || [])) }
+function onDropGallery(e)    { addGalleryFiles(Array.from(e.dataTransfer.files || [])) }
+function addGalleryFiles(files) {
+  files.forEach(file => {
+    galleryNewFiles.value.push(file)
+    galleryPreviews.value.push(URL.createObjectURL(file))
+  })
+}
+function removeGalleryImage(i) {
+  // Si es una imagen existente (URL), la quitamos de galleryExisting
+  if (i < galleryExisting.value.length) {
+    galleryExisting.value.splice(i, 1)
+    galleryPreviews.value.splice(i, 1)
+  } else {
+    // Es una imagen nueva
+    const newIdx = i - galleryExisting.value.length
+    galleryNewFiles.value.splice(newIdx, 1)
+    galleryPreviews.value.splice(i, 1)
+  }
+}
+function clearGallery() {
+  galleryPreviews.value = []
+  galleryBase64.value = []
+  if (galleryInput.value) galleryInput.value.value = ''
+}
+
 // ── Load product ────────────────────────────────
 onMounted(async () => {
   try {
-    const res  = await fetch(`${API}/productos/${id}`)
+    const res  = await fetch(`${API}/productos/${id}`, { headers: authHeaders() })
     const data = await res.json()
     if (!res.ok) { router.push('/products'); return }
 
@@ -246,6 +373,16 @@ onMounted(async () => {
       if (match) form.value.categoria = match.id
     }
 
+    // Pre-load existing images from DB
+    if (data.imagen_principal) {
+      mainImagePreview.value   = data.imagen_principal
+      existingMainImage.value  = data.imagen_principal
+    }
+    if (data.galeria && data.galeria.length > 0) {
+      galleryExisting.value  = [...data.galeria]
+      galleryPreviews.value  = [...data.galeria]
+    }
+
     // Pre-load related products
     await loadTodos()
     if (data.productos_relacionados && data.productos_relacionados.length > 0) {
@@ -266,7 +403,7 @@ onMounted(async () => {
 const categoriasOpts = ref([])
 async function loadCategorias() {
   try {
-    const res = await fetch(`${API}/categorias`)
+    const res = await fetch(`${API}/categorias`, { headers: authHeaders() })
     categoriasOpts.value = await res.json()
   } catch {}
 }
@@ -281,7 +418,7 @@ const relDropdownRef = ref(null)
 
 async function loadTodos() {
   try {
-    const res = await fetch(`${API}/productos`)
+    const res = await fetch(`${API}/productos`, { headers: authHeaders() })
     todosLosProductos.value = (await res.json()).filter(p => String(p.id) !== String(id))
   } catch {}
 }
@@ -341,6 +478,44 @@ async function handleSubmit() {
     const catSeleccionada = categoriasOpts.value.find(c => c.id === form.value.categoria)
     const categoriasArr   = catSeleccionada ? [catSeleccionada.nombre] : []
 
+    // ── Subir a Cloudinary las imágenes nuevas ──────────
+    let imagenPrincipalUrl = existingMainImage.value || ''
+    let galeriaUrls        = [...galleryExisting.value]
+
+    if (mainImageFile.value) {
+      const base64 = await fileToBase64(mainImageFile.value)
+      const uploadRes = await fetch(`${API_URL}/upload/image`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ data: base64 }),
+      })
+      if (!uploadRes.ok) {
+        const err = await uploadRes.json()
+        alert(err.error || 'Error al subir imagen principal')
+        submitting.value = false
+        return
+      }
+      const { url } = await uploadRes.json()
+      imagenPrincipalUrl = url
+    }
+
+    if (galleryNewFiles.value.length > 0) {
+      const base64s = await Promise.all(galleryNewFiles.value.map(fileToBase64))
+      const uploadRes = await fetch(`${API_URL}/upload/images`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ images: base64s }),
+      })
+      if (!uploadRes.ok) {
+        const err = await uploadRes.json()
+        alert(err.error || 'Error al subir galería')
+        submitting.value = false
+        return
+      }
+      const { urls } = await uploadRes.json()
+      galeriaUrls = [...galeriaUrls, ...urls]
+    }
+
     const payload = {
       nombre:       form.value.nombre.trim(),
       precio:       parseFloat(form.value.precio)      || 0,
@@ -353,14 +528,13 @@ async function handleSubmit() {
       categorias:   categoriasArr,
       es_variable:  form.value.isVariable,
       productos_relacionados: productosRelacionadosSelected.value.map(p => p.id),
-      // Unchanged array fields — pass back what we got
-      colores: [], tamanios: [], materiales: [],
-      imagen_principal: '', galeria: [],
+      imagen_principal: imagenPrincipalUrl,
+      galeria:           galeriaUrls,
     }
 
     const res  = await fetch(`${API}/productos/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders(),
       body: JSON.stringify(payload),
     })
     const data = await res.json()

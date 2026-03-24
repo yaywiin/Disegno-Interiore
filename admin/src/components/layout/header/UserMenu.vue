@@ -4,11 +4,13 @@
       class="flex items-center text-gray-700 dark:text-gray-400"
       @click.prevent="toggleDropdown"
     >
-      <span class="mr-3 overflow-hidden rounded-full h-11 w-11">
-        <img src="/images/user/owner.jpg" alt="User" />
+      <span
+        class="mr-3 flex h-11 w-11 items-center justify-center rounded-full bg-brand-500 text-white text-base font-bold select-none flex-shrink-0"
+      >
+        {{ userInitials }}
       </span>
 
-      <span class="block mr-1 font-medium text-theme-sm">Musharof </span>
+      <span class="block mr-1 font-medium text-theme-sm">{{ userName }}</span>
 
       <ChevronDownIcon :class="{ 'rotate-180': dropdownOpen }" />
     </button>
@@ -20,10 +22,10 @@
     >
       <div>
         <span class="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-          Musharof Chowdhury
+          {{ userName }}
         </span>
         <span class="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-          randomuser@pimjo.com
+          {{ userCorreo }}
         </span>
       </div>
 
@@ -59,9 +61,23 @@
 
 <script setup>
 import { UserCircleIcon, ChevronDownIcon, LogoutIcon, SettingsIcon, InfoCircleIcon } from '@/icons'
-import { RouterLink } from 'vue-router'
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 
+const getUser = () => {
+  try { return JSON.parse(localStorage.getItem('user') || '{}') } catch { return {} }
+}
+const user = getUser()
+const userName   = computed(() => user.nombre || 'Usuario')
+const userCorreo = computed(() => user.correo || '')
+const userInitials = computed(() => {
+  const parts = (user.nombre || 'U').trim().split(' ')
+  return parts.length >= 2
+    ? (parts[0][0] + parts[1][0]).toUpperCase()
+    : (parts[0][0] || 'U').toUpperCase()
+})
+
+const router = useRouter()
 const dropdownOpen = ref(false)
 const dropdownRef = ref(null)
 
@@ -80,9 +96,10 @@ const closeDropdown = () => {
 }
 
 const signOut = () => {
-  // Implement sign out logic here
-  console.log('Signing out...')
+  localStorage.removeItem('token')
+  localStorage.removeItem('user')
   closeDropdown()
+  router.push('/signin')
 }
 
 const handleClickOutside = (event) => {

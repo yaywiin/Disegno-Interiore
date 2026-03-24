@@ -36,7 +36,12 @@
         <div class="product-info reveal-right delay-2">
           <span class="product-category">{{ product.category }}</span>
           <h1 class="product-title">{{ product.name }}</h1>
-          <p class="product-price">{{ formatPrice(product.price) }}</p>
+          <div class="product-pricing">
+            <span v-if="product.originalPrice" class="product-price-original" style="font-size:14px; color:var(--c-muted); text-decoration:line-through; margin-right: 8px;">
+              {{ formatPrice(product.originalPrice) }}
+            </span>
+            <span class="product-price">{{ formatPrice(product.price) }}</span>
+          </div>
 
           <p class="product-desc">{{ product.desc }}</p>
 
@@ -139,51 +144,75 @@ import { useRevealAnimation } from '../composables/useRevealAnimation'
 useRevealAnimation()
 
 const route = useRoute()
-const { getProductById } = useProducts()
+const { getProductById, loading } = useProducts()
 const { addItemToCart, openDrawer } = useCart()
 
-const product = ref(null)
+const product          = ref(null)
 const selectedMaterial = ref('')
-const quantity = ref(1)
-const selectedImage = ref('')
-const selectedSize = ref('')
-const selectedColor = ref(null)
+const quantity         = ref(1)
+const selectedImage    = ref('')
+const selectedSize     = ref('')
+const selectedColor    = ref(null)
+
+const API = 'http://localhost:3001/api/public'
 
 const formatPrice = (value) => {
-  return new Intl.NumberFormat('es-MX', {
-    style: 'currency',
-    currency: 'MXN'
-  }).format(value)
+  return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(value)
 }
 
-const loadProduct = async () => {
-  product.value = getProductById(route.params.id)
+function mapRaw(raw) {
+  return {
+    id: raw.id, name: raw.nombre,
+    category: raw.categorias?.[0] || 'Sin categoría',
+    img:  raw.imagen_principal || '/product_living.png',
+    gallery: raw.galeria?.length > 0 ? raw.galeria : (raw.imagen_principal ? [raw.imagen_principal] : ['/product_living.png']),
+    badge:    raw.descuento > 0 ? `-${raw.descuento}%` : null,
+    desc:     raw.descripcion || '',
+    materials: raw.materiales || [],
+    sizes:    raw.tamanios || [],
+    colors:   (raw.colores || []).map(c => {
+      const str = String(c)
+      const hexMatch = str.match(/#([0-9a-fA-F]{3,6})/)
+      return { name: str.replace(/·?\s*#[0-9a-fA-F]{3,6}/, '').trim() || str, hex: hexMatch ? hexMatch[0] : '#888888' }
+    }),
+    price: raw.descuento > 0 ? (raw.precio - (raw.precio * raw.descuento / 100)) : parseFloat(raw.precio) || 0,
+    originalPrice: raw.descuento > 0 ? parseFloat(raw.precio) : null,
+    stock: raw.stock || 0,
+    ancho: raw.ancho || 0, alto: raw.alto || 0, profundidad: raw.profundidad || 0,
+  }
+}
+
+async function loadProduct() {
+  const id = route.params.id
+  let found = getProductById(id)
+
+  if (!found) {
+    try {
+      const res = await fetch(`${API}/productos/${id}`)
+      if (res.ok) found = mapRaw(await res.json())
+    } catch (e) { console.error('Error al cargar producto:', e) }
+  }
+
+  product.value = found || null
   if (product.value) {
-    selectedMaterial.value = product.value.materials[0]
-    selectedImage.value = product.value.gallery?.[0] || product.value.img
-    selectedSize.value = product.value.sizes?.[0] || ''
-    selectedColor.value = product.value.colors?.[0] || null
+    selectedMaterial.value = product.value.materials[0] || ''
+    selectedImage.value    = product.value.gallery?.[0] || product.value.img
+    selectedSize.value     = product.value.sizes?.[0] || ''
+    selectedColor.value    = product.value.colors?.[0] || null
     quantity.value = 1
-    
-    // Elements are rendered after nextTick, so we force them to be visible
-    // since the intersection observer in useRevealAnimation might miss them
-    // when they appear dynamically via v-if
     await nextTick()
-    document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => {
-      el.classList.add('visible')
-    })
+    document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => el.classList.add('visible'))
   }
 }
 
 watch(() => route.params.id, loadProduct)
+watch(loading, isLoading => { if (!isLoading) loadProduct() })
 onMounted(loadProduct)
 
 const handleAddToCart = () => {
   if (!product.value) return
-  addItemToCart(product.value, quantity.value, { 
-    material: selectedMaterial.value,
-    size: selectedSize.value,
-    color: selectedColor.value?.name
+  addItemToCart(product.value, quantity.value, {
+    material: selectedMaterial.value, size: selectedSize.value, color: selectedColor.value?.name
   })
   openDrawer()
 }

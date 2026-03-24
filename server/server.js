@@ -2,12 +2,15 @@ require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
 const pool = require('./db')
+const authRouter = require('./routes/auth')
 const usersRouter = require('./routes/users')
 const categoriasRouter = require('./routes/categorias')
 const productosRouter = require('./routes/productos')
 const coloresRouter = require('./routes/colores')
 const materialesRouter = require('./routes/materiales')
 const tamaniosRouter = require('./routes/tamanios')
+const uploadRouter  = require('./routes/upload')
+const { verifyToken } = require('./middleware/auth')
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -16,9 +19,10 @@ const PORT = process.env.PORT || 3001
 app.use(cors({
   origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type']
+  allowedHeaders: ['Content-Type', 'Authorization']
 }))
-app.use(express.json())
+app.use(express.json({ limit: '15mb' }))
+app.use(express.urlencoded({ extended: true, limit: '15mb' }))
 
 // Crear tabla si no existe
 const initDB = async () => {
@@ -58,13 +62,59 @@ const initDB = async () => {
   }
 }
 
-// Rutas
-app.use('/api/users', usersRouter)
-app.use('/api/categorias', categoriasRouter)
-app.use('/api/productos', productosRouter)
-app.use('/api/colores', coloresRouter)
-app.use('/api/materiales', materialesRouter)
-app.use('/api/tamanios', tamaniosRouter)
+// Rutas públicas (sin autenticación)
+app.use('/api/auth', authRouter)
+
+// Ruta pública de productos para el client (sin JWT)
+app.get('/api/public/productos', async (req, res) => {
+  try {
+    const pool = require('./db')
+    const result = await pool.query(
+      `SELECT id, nombre, precio, descripcion, descuento, stock,
+              ancho, alto, profundidad,
+              productos_relacionados, categorias,
+              imagen_principal, galeria,
+              es_variable, colores, materiales, tamanios,
+              created_at, updated_at
+       FROM productos
+       WHERE deleted_at IS NULL
+       ORDER BY id ASC`
+    )
+    res.json(result.rows)
+  } catch (err) {
+    console.error('Error al obtener productos públicos:', err)
+    res.status(500).json({ error: 'Error interno del servidor' })
+  }
+})
+
+app.get('/api/public/productos/:id', async (req, res) => {
+  try {
+    const pool = require('./db')
+    const result = await pool.query(
+      `SELECT id, nombre, precio, descripcion, descuento, stock,
+              ancho, alto, profundidad,
+              productos_relacionados, categorias,
+              imagen_principal, galeria,
+              es_variable, colores, materiales, tamanios,
+              created_at, updated_at
+       FROM productos WHERE id = $1 AND deleted_at IS NULL`,
+      [req.params.id]
+    )
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Producto no encontrado' })
+    res.json(result.rows[0])
+  } catch (err) {
+    res.status(500).json({ error: 'Error interno del servidor' })
+  }
+})
+
+// Rutas protegidas (requieren JWT válido)
+app.use('/api/users', verifyToken, usersRouter)
+app.use('/api/categorias', verifyToken, categoriasRouter)
+app.use('/api/productos', verifyToken, productosRouter)
+app.use('/api/colores', verifyToken, coloresRouter)
+app.use('/api/materiales', verifyToken, materialesRouter)
+app.use('/api/tamanios',   verifyToken, tamaniosRouter)
+app.use('/api/upload',     verifyToken, uploadRouter)
 
 // Ruta de salud
 app.get('/api/health', (req, res) => {

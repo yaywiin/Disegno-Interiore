@@ -579,6 +579,7 @@ import { ArrowLeft, ChevronDown, ImageIcon, Images, Plus, Pencil, Trash2, Check,
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 
 const router = useRouter()
+const authHeaders = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` })
 
 // ──────────────────────────────────────────────
 // Helpers
@@ -639,7 +640,7 @@ const categoriasOpts = ref([])
 
 onMounted(async () => {
   try {
-    const res = await fetch('http://localhost:3001/api/categorias')
+    const res = await fetch('http://localhost:3001/api/categorias', { headers: authHeaders() })
     categoriasOpts.value = await res.json()
   } catch (e) {
     console.error('Error al cargar categorías:', e)
@@ -660,7 +661,7 @@ const relDropdownRef = ref(null)
 onMounted(async () => {
   // Cargar lista para el autocomplete de relacionados
   try {
-    const res = await fetch('http://localhost:3001/api/productos')
+    const res = await fetch('http://localhost:3001/api/productos', { headers: authHeaders() })
     todosLosProductos.value = await res.json()
   } catch (e) {
     console.error('Error al cargar productos relacionados:', e)
@@ -697,17 +698,24 @@ function selectFirstRelacionado() {
   if (relFiltered.value.length > 0) addRelacionado(relFiltered.value[0])
 }
 
-// ──────────────────────────────────────────────
-// Image – main
-// ──────────────────────────────────────────────
+// ── Image helpers ───────────────────────────────
+const API_URL = 'http://localhost:3001/api'
 
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload  = e => resolve(e.target.result)
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
+
+// ── Image – main ───────────────────────────────
 const mainImageInput = ref(null)
-const mainImageFile = ref(null)
+const mainImageFile  = ref(null)
 const mainImagePreview = ref(null)
 
-function triggerMainImageInput() {
-  mainImageInput.value?.click()
-}
+function triggerMainImageInput() { mainImageInput.value?.click() }
 
 function onMainImageChange(event) {
   const file = event.target.files?.[0]
@@ -720,35 +728,25 @@ function onDropMainImage(event) {
 }
 
 function setMainImage(file) {
-  mainImageFile.value = file
+  mainImageFile.value    = file
   mainImagePreview.value = URL.createObjectURL(file)
 }
 
 function clearMainImage() {
-  mainImageFile.value = null
+  mainImageFile.value    = null
   mainImagePreview.value = null
   if (mainImageInput.value) mainImageInput.value.value = ''
 }
 
-// ──────────────────────────────────────────────
-// Image – gallery
-// ──────────────────────────────────────────────
-
-const galleryInput = ref(null)
-const galleryFiles = ref([])
+// ── Image – gallery ─────────────────────────────
+const galleryInput    = ref(null)
+const galleryFiles    = ref([])
 const galleryPreviews = ref([])
 
-function triggerGalleryInput() {
-  galleryInput.value?.click()
-}
+function triggerGalleryInput() { galleryInput.value?.click() }
 
-function onGalleryChange(event) {
-  addGalleryFiles(Array.from(event.target.files || []))
-}
-
-function onDropGallery(event) {
-  addGalleryFiles(Array.from(event.dataTransfer.files || []))
-}
+function onGalleryChange(event) { addGalleryFiles(Array.from(event.target.files || [])) }
+function onDropGallery(event)   { addGalleryFiles(Array.from(event.dataTransfer.files || [])) }
 
 function addGalleryFiles(files) {
   files.forEach(file => {
@@ -763,7 +761,7 @@ function removeGalleryImage(index) {
 }
 
 function clearGallery() {
-  galleryFiles.value = []
+  galleryFiles.value    = []
   galleryPreviews.value = []
   if (galleryInput.value) galleryInput.value.value = ''
 }
@@ -783,9 +781,9 @@ const dbTamanios   = ref([])
 onMounted(async () => {
   // Cargar datos para los grupos de variaciones
   const [resC, resM, resT] = await Promise.allSettled([
-    fetch('http://localhost:3001/api/colores').then(r => r.json()),
-    fetch('http://localhost:3001/api/materiales').then(r => r.json()),
-    fetch('http://localhost:3001/api/tamanios').then(r => r.json()),
+    fetch('http://localhost:3001/api/colores',   { headers: authHeaders() }).then(r => r.json()),
+    fetch('http://localhost:3001/api/materiales', { headers: authHeaders() }).then(r => r.json()),
+    fetch('http://localhost:3001/api/tamanios',   { headers: authHeaders() }).then(r => r.json()),
   ])
   if (resC.status === 'fulfilled') dbColores.value    = resC.value
   if (resM.status === 'fulfilled') dbMateriales.value = resM.value
@@ -870,7 +868,7 @@ async function saveNewColor(gi) {
   group.saving = true
   try {
     const res = await fetch('http://localhost:3001/api/colores', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: authHeaders(),
       body: JSON.stringify({ nombre: group.newItem.nombre, codigo_hex: group.newItem.codigo_hex }),
     })
     const data = await res.json()
@@ -940,7 +938,7 @@ async function saveNewMaterial(gi) {
   group.saving = true
   try {
     const res = await fetch('http://localhost:3001/api/materiales', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: authHeaders(),
       body: JSON.stringify({ nombre: group.newItem.nombre, tipo: group.newItem.tipo }),
     })
     const data = await res.json()
@@ -960,7 +958,7 @@ async function saveNewTamanio(gi) {
   group.saving = true
   try {
     const res = await fetch('http://localhost:3001/api/tamanios', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: authHeaders(),
       body: JSON.stringify(group.newItem),
     })
     const data = await res.json()
@@ -1000,6 +998,44 @@ async function handleSubmit() {
     const materiales = variationGroups.value.filter(g => g.type === 'material').flatMap(g => g.items.map(i => i.key.toString()))
     const tamanios   = variationGroups.value.filter(g => g.type === 'tamanio') .flatMap(g => g.items.map(i => i.label))
 
+    // ── Subir imágenes a Cloudinary ───────────────
+    let imagenPrincipalUrl = ''
+    let galeriaUrls = []
+
+    if (mainImageFile.value) {
+      const base64 = await fileToBase64(mainImageFile.value)
+      const uploadRes = await fetch(`${API_URL}/upload/image`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ data: base64 }),
+      })
+      if (!uploadRes.ok) {
+        const err = await uploadRes.json()
+        alert(err.error || 'Error al subir imagen principal')
+        submitting.value = false
+        return
+      }
+      const { url } = await uploadRes.json()
+      imagenPrincipalUrl = url
+    }
+
+    if (galleryFiles.value.length > 0) {
+      const base64s = await Promise.all(galleryFiles.value.map(fileToBase64))
+      const uploadRes = await fetch(`${API_URL}/upload/images`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ images: base64s }),
+      })
+      if (!uploadRes.ok) {
+        const err = await uploadRes.json()
+        alert(err.error || 'Error al subir galería')
+        submitting.value = false
+        return
+      }
+      const { urls } = await uploadRes.json()
+      galeriaUrls = urls
+    }
+
     const payload = {
       nombre:            form.value.nombre.trim(),
       precio:            parseFloat(form.value.precio) || 0,
@@ -1010,8 +1046,8 @@ async function handleSubmit() {
       colores,
       tamanios,
       materiales,
-      imagen_principal:  '',
-      galeria:           [],
+      imagen_principal:  imagenPrincipalUrl,
+      galeria:           galeriaUrls,
       descuento:         parseFloat(form.value.descuento) || 0,
       ancho:             parseFloat(form.value.ancho) || 0,
       alto:              parseFloat(form.value.alto) || 0,
@@ -1021,7 +1057,7 @@ async function handleSubmit() {
 
     const res = await fetch('http://localhost:3001/api/productos', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders(),
       body: JSON.stringify(payload),
     })
 

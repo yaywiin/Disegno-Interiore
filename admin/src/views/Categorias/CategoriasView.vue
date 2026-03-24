@@ -142,6 +142,7 @@ import AdminLayout from '@/components/layout/AdminLayout.vue'
 import CategoriasTable from '@/components/tables/categorias/CategoriasTable.vue'
 
 const API = 'http://localhost:3001/api/categorias'
+const authHeaders = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` })
 
 const categorias  = ref([])
 const selected    = ref(null)
@@ -158,7 +159,7 @@ const form = ref({ nombre: '' })
 // ── Fetch ──
 const fetchCategorias = async () => {
   try {
-    const res = await fetch(API)
+    const res = await fetch(API, { headers: authHeaders() })
     categorias.value = await res.json()
   } catch (e) {
     console.error('Error al cargar categorías:', e)
@@ -216,7 +217,7 @@ const submitForm = async () => {
 
     const res = await fetch(url, {
       method,
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders(),
       body: JSON.stringify({ nombre: form.value.nombre.trim() })
     })
 
@@ -246,7 +247,7 @@ const submitForm = async () => {
 const deleteCategoria = async () => {
   submitting.value = true
   try {
-    const res = await fetch(`${API}/${selected.value.id}`, { method: 'DELETE' })
+    const res = await fetch(`${API}/${selected.value.id}`, { method: 'DELETE', headers: authHeaders() })
     if (res.ok) {
       categorias.value = categorias.value.filter(c => c.id !== selected.value.id)
       closeModal()

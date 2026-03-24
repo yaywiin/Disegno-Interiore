@@ -10,12 +10,12 @@
           <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
             <div>
               <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">First Name</p>
-              <p class="text-sm font-medium text-gray-800 dark:text-white/90">Musharof</p>
+              <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{ userName }}</p>
             </div>
 
             <div>
               <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">Last Name</p>
-              <p class="text-sm font-medium text-gray-800 dark:text-white/90">Chowdhury</p>
+              <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{ userRol }}</p>
             </div>
 
             <div>
@@ -23,18 +23,18 @@
                 Email address
               </p>
               <p class="text-sm font-medium text-gray-800 dark:text-white/90">
-                randomuser@pimjo.com
+                {{ userCorreo }}
               </p>
             </div>
 
             <div>
               <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">Phone</p>
-              <p class="text-sm font-medium text-gray-800 dark:text-white/90">+09 363 398 46</p>
+              <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{ form.telefono || '—' }}</p>
             </div>
 
             <div>
               <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">Bio</p>
-              <p class="text-sm font-medium text-gray-800 dark:text-white/90">Team Manager</p>
+              <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{ form.bio || '—' }}</p>
             </div>
           </div>
         </div>
@@ -168,7 +168,9 @@
                     </label>
                     <input
                       type="text"
-                      value="Musharof"
+                      :value="userName"
+                      disabled
+                      title="El nombre se gestiona desde la sección de Usuarios"
                       class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                     />
                   </div>
@@ -181,7 +183,9 @@
                     </label>
                     <input
                       type="text"
-                      value="Chowdhury"
+                      :value="userCorreo"
+                      disabled
+                      title="El correo se gestiona desde la sección de Usuarios"
                       class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                     />
                   </div>
@@ -194,7 +198,8 @@
                     </label>
                     <input
                       type="text"
-                      value="emirhanboruch55@gmail.com"
+                      v-model="form.telefono"
+                      placeholder="+52 55 0000 0000"
                       class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                     />
                   </div>
@@ -207,7 +212,8 @@
                     </label>
                     <input
                       type="text"
-                      value="+09 363 398 46"
+                      v-model="form.bio"
+                      placeholder="Cuéntanos algo sobre ti"
                       class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                     />
                   </div>
@@ -220,7 +226,8 @@
                     </label>
                     <input
                       type="text"
-                      value="Team Manager"
+                      v-model="form.bio"
+                      placeholder="Cuéntanos algo sobre ti"
                       class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                     />
                   </div>
@@ -251,14 +258,22 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import Modal from './Modal.vue'
 
+const getUser = () => {
+  try { return JSON.parse(localStorage.getItem('user') || '{}') } catch { return {} }
+}
+const user = getUser()
+
+const userName   = computed(() => user.nombre || 'Usuario')
+const userCorreo = computed(() => user.correo || '')
+const userRol    = computed(() => user.rol    || '')
+
 const isProfileInfoModal = ref(false)
+const form = ref({ facebook: '', twitter: '', linkedin: '', instagram: '', telefono: '', bio: '' })
 
 const saveProfile = () => {
-  // Implement save profile logic here
-  console.log('Profile saved')
   isProfileInfoModal.value = false
 }
 </script>

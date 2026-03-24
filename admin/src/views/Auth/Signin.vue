@@ -94,17 +94,30 @@
                 </div>
                 Mantenerme conectado
               </label>
-              <router-link to="/reset-password" class="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400">
-                ¿Olvidaste tu contraseña?
-              </router-link>
+            </div>
+
+            <!-- Mensaje de error -->
+            <div
+              v-if="errorMsg"
+              class="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800/40 dark:bg-red-900/20 dark:text-red-400"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+              {{ errorMsg }}
             </div>
 
             <!-- Botón -->
             <button
               type="submit"
-              class="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600"
+              :disabled="loading"
+              class="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Iniciar sesión
+              <svg v-if="loading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+              {{ loading ? 'Ingresando...' : 'Iniciar sesión' }}
             </button>
           </form>
         </div>
@@ -112,36 +125,24 @@
 
       <!-- Panel derecho: Visual de marca -->
       <div class="relative hidden lg:flex lg:w-1/2 bg-brand-950 flex-col items-center justify-center overflow-hidden shadow-[-10px_0_30px_rgba(0,0,0,0.1)]">
-        <!-- Imagen fotográfica premium -->
         <div 
           class="absolute inset-0 bg-cover bg-center transition-transform duration-[10s] hover:scale-105"
           style="background-image: url('https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80&w=1600');"
         ></div>
-        
-        <!-- Capas de degradado y filtros elegantes -->
         <div class="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-900/80 to-gray-900/40 mix-blend-multiply"></div>
         <div class="absolute inset-0 bg-brand-950/40 backdrop-blur-[2px]"></div>
-
-        <!-- Decoraciones sutiles tipo marco -->
         <div class="absolute inset-8 border border-white/10 opacity-50 hidden xl:block pointer-events-none"></div>
 
-        <!-- Contenido principal centrado -->
         <div class="relative z-10 w-full h-full flex flex-col items-center justify-center p-12 lg:p-20 text-center">
-          
-          <!-- Elemento flotante premium (glassmorphism) -->
           <div class="mb-12 relative flex flex-col items-center justify-center p-8 lg:p-10 rounded-2xl border border-white/20 bg-white/5 shadow-2xl backdrop-blur-md">
-            <!-- Destello estético arriba -->
             <div class="absolute -top-[1px] left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-brand-400 to-transparent"></div>
-            
             <div class="flex items-center justify-center w-14 h-14 border border-brand-500 rotate-45 flex-shrink-0 shadow-[0_0_15px_rgba(155,152,97,0.3)] mb-8">
               <div class="w-10 h-10 border border-brand-400/40"></div>
             </div>
-            
             <div class="mt-2 text-center flex flex-col items-center">
               <p class="text-white/80 text-[11px] tracking-[0.35em] uppercase font-light mb-1">Disegno</p>
               <p class="text-brand-400 text-3xl italic" style="font-family: 'Playfair Display', serif; font-weight: 400; letter-spacing: 0.05em;">Interiore</p>
             </div>
-            
             <div class="mt-6 flex items-center justify-center gap-3 opacity-60">
               <div class="h-px w-10 bg-brand-500/80"></div>
               <div class="w-1 h-1 bg-brand-500 rotate-45"></div>
@@ -149,7 +150,6 @@
             </div>
           </div>
 
-          <!-- Textiles y slogan premium -->
           <div>
             <h2 class="text-3xl lg:text-4xl lg:leading-[1.3] font-light text-white mb-5" style="font-family: 'Playfair Display', serif;">
               Diseño de élite,<br />
@@ -168,23 +168,51 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import AdminLogo from '@/components/common/AdminLogo.vue'
+
+const router = useRouter()
 
 const email = ref('')
 const password = ref('')
 const showPassword = ref(false)
 const keepLoggedIn = ref(false)
+const loading = ref(false)
+const errorMsg = ref('')
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
 const togglePasswordVisibility = () => {
   showPassword.value = !showPassword.value
 }
 
-const handleSubmit = () => {
-  console.log('Inicio de sesión', {
-    email: email.value,
-    password: password.value,
-    keepLoggedIn: keepLoggedIn.value,
-  })
+const handleSubmit = async () => {
+  errorMsg.value = ''
+  loading.value = true
+
+  try {
+    const res = await fetch(`${API_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ correo: email.value, contrasena: password.value }),
+    })
+
+    const data = await res.json()
+
+    if (!res.ok) {
+      errorMsg.value = data.error || 'Error al iniciar sesión.'
+      return
+    }
+
+    localStorage.setItem('token', data.token)
+    localStorage.setItem('user', JSON.stringify(data.user))
+
+    router.push('/products')
+  } catch (err) {
+    errorMsg.value = 'No se pudo conectar con el servidor. Intenta de nuevo.'
+  } finally {
+    loading.value = false
+  }
 }
 </script>

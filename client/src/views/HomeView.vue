@@ -12,7 +12,7 @@
           class="slide"
           :class="{ active: current === i, prev: prev === i }"
         >
-          <img :src="slide.img" :alt="slide.alt" class="slide-img" />
+          <img :src="slide.img" :alt="slide.alt" class="slide-img" @error="e => e.target.src='/product_living.png'" />
           <div class="slide-overlay"></div>
         </div>
       </div>
@@ -22,7 +22,7 @@
         <!-- Left: text -->
         <div class="hero-text">
           <div class="hero-eyebrow">
-            <span class="hero-label">{{ slides[current].label }}</span>
+            <span class="hero-label">{{ slides[current]?.label || 'Colección' }}</span>
             <span class="hero-divider"></span>
             <span class="slide-counter">
               <em>{{ String(current + 1).padStart(2, '0') }}</em>
@@ -33,14 +33,14 @@
 
           <transition name="slide-text" mode="out-in">
             <h1 class="hero-title" :key="current">
-              {{ slides[current].title }}<br>
-              <em>{{ slides[current].subtitle }}</em>
+              {{ slides[current]?.title || 'Descubre,' }}<br>
+              <em>{{ slides[current]?.subtitle || 'nuestro arte.' }}</em>
             </h1>
           </transition>
 
           <transition name="slide-sub" mode="out-in">
             <p class="hero-sub" :key="'sub-' + current">
-              {{ slides[current].desc }}
+              {{ slides[current]?.desc || 'Piezas únicas.' }}
             </p>
           </transition>
 
@@ -115,17 +115,29 @@
             :to="`/tienda/${item.id}`"
           >
             <div class="card-img-wrap">
-              <img :src="item.img" :alt="item.name" class="card-img" />
+              <img :src="item.img" :alt="item.name" class="card-img" @error="e => e.target.src='/product_living.png'" />
               <div class="card-overlay">
                 <span class="btn btn-outline-light card-btn">Ver pieza</span>
               </div>
               <span class="card-index">0{{ i + 1 }}</span>
+              <div class="product-badge" v-if="item.badge" style="position: absolute; top: 16px; left: 16px; background: var(--c-brand); color: white; font-size: 9px; font-weight: 600; padding: 5px 12px; letter-spacing: 0.18em; text-transform: uppercase;">
+                {{ item.badge }}
+              </div>
             </div>
             <div class="card-info">
               <div class="card-info-top">
                 <span class="card-cat label">{{ item.category }}</span>
               </div>
               <h3 class="card-name">{{ item.name }}</h3>
+              
+              <div class="product-price-wrap" style="margin-top:10px;">
+                <p v-if="item.originalPrice" class="product-price-original" style="font-size:12px; color:var(--c-muted); text-decoration:line-through; margin-bottom: 2px;">
+                  {{ formatPrice(item.originalPrice) }}
+                </p>
+                <p class="product-price" style="font-weight:500; font-size:14px; color:var(--c-dark);">
+                  {{ formatPrice(item.price) }}
+                </p>
+              </div>
             </div>
           </router-link>
         </div>
@@ -182,49 +194,50 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRevealAnimation } from '../composables/useRevealAnimation'
-useRevealAnimation()
+import { useProducts } from '../composables/useProducts'
+
+const { refresh: refreshReveal } = useRevealAnimation()
+const { products } = useProducts()
+
+const formatPrice = (value) => {
+  return new Intl.NumberFormat('es-MX', {
+    style: 'currency',
+    currency: 'MXN'
+  }).format(value)
+}
 
 // ─── Slider logic ───────────────────────────────────────────────
-const slides = [
-  {
-    id: 1,
-    img: '/hero_furniture.png',
-    alt: 'Sala de diseño contemporáneo',
-    label: 'Colección Sala',
-    title: 'El espacio,',
-    subtitle: 'redefinido.',
-    desc: 'Piezas concebidas para quienes entienden\nque el hogar es una forma de expresión.',
-  },
-  {
-    id: 2,
-    img: '/product_dining.png',
-    alt: 'Comedor de alta gama',
-    label: 'Colección Comedor',
-    title: 'La mesa,',
-    subtitle: 'un ritual.',
-    desc: 'Maderas nobles que transforman cada comida\nen una experiencia de diseño.',
-  },
-  {
-    id: 3,
-    img: '/product_bedroom.png',
-    alt: 'Recámara de lujo',
-    label: 'Colección Recámara',
-    title: 'El descanso,',
-    subtitle: 'elevado.',
-    desc: 'Ambientes pensados para el reposo absoluto,\ndiseñados con materiales de primera.',
-  },
-  {
-    id: 4,
-    img: '/product_office.png',
-    alt: 'Oficina de diseño',
-    label: 'Colección Oficina',
-    title: 'El trabajo,',
-    subtitle: 'con estilo.',
-    desc: 'Espacios de trabajo que inspiran productividad\nsin sacrificar la elegancia.',
-  },
-]
+const slides = ref([
+  { id: 'slide-0', label: 'Colección Sala', title: 'El espacio,', subtitle: 'redefinido.', desc: 'Piezas concebidas para quienes entienden\nque el hogar es una forma de expresión.', img: '/hero_furniture.png', alt: 'Sala' },
+  { id: 'slide-1', label: 'Colección Comedor', title: 'La mesa,', subtitle: 'un ritual.', desc: 'Maderas nobles que transforman cada comida\nen una experiencia de diseño.', img: '/product_dining.png', alt: 'Comedor' },
+  { id: 'slide-2', label: 'Colección Recámara', title: 'El descanso,', subtitle: 'elevado.', desc: 'Ambientes pensados para el reposo absoluto,\ndiseñados con materiales de primera.', img: '/product_bedroom.png', alt: 'Recámara' },
+  { id: 'slide-3', label: 'Colección Oficina', title: 'El trabajo,', subtitle: 'con estilo.', desc: 'Espacios de trabajo que inspiran productividad\nsin sacrificar la elegancia.', img: '/product_office.png', alt: 'Oficina' }
+])
+
+watch(products, (newProducts) => {
+  if (!newProducts || newProducts.length === 0) return
+
+  // Tomamos una lista aleatoria de los productos disponibles
+  const shuffled = [...newProducts].sort(() => 0.5 - Math.random())
+
+  // Actualizamos los slides existentes conservando el 'id' (key)
+  // para que el DOM de Vue no se destruya (evitando el pantallazo negro)
+  for (let i = 0; i < 4; i++) {
+    // Si hay menos de 4 productos, repetimos la selección
+    const p = shuffled[i % shuffled.length]
+    if (p) {
+      slides.value[i].img = p.img || slides.value[i].img
+      slides.value[i].alt = p.name
+      slides.value[i].label = `Colección ${p.category}`
+      slides.value[i].subtitle = p.name + '.'
+      // mantenemos el 'title' y 'desc' por defecto o usamos el nuestro:
+      slides.value[i].title = 'Descubre,'
+      slides.value[i].desc = p.desc || slides.value[i].desc
+    }
+  }
+}, { immediate: true })
 
 const current = ref(0)
 const prev = ref(-1)
@@ -265,7 +278,7 @@ const goTo = (index) => {
 }
 
 const changeSlide = (dir) => {
-  const next = (current.value + dir + slides.length) % slides.length
+  const next = (current.value + dir + slides.value.length) % slides.value.length
   goTo(next)
 }
 
@@ -287,12 +300,18 @@ const marqueeWords = [
   '— Artesanal', '— Diseño', '— Interiores', '— Contemporáneo', '— Exclusivo'
 ]
 
-const featured = [
-  { id: 1, name: 'Sofá Onyx', category: 'Sala', img: '/product_living.png' },
-  { id: 2, name: 'Comedor Nogal', category: 'Comedor', img: '/product_dining.png' },
-  { id: 3, name: 'Suite Serena', category: 'Recámara', img: '/product_bedroom.png' },
-  { id: 4, name: 'Escritorio Axis', category: 'Oficina', img: '/product_office.png' },
-]
+const featured = computed(() => {
+  const newProducts = products.value || []
+  if (newProducts.length === 0) return []
+  // Mezclamos un poco y tomamos 4 (también al azar si prefieres o los primeros)
+  const shuffled = [...newProducts].sort(() => 0.5 - Math.random())
+  return shuffled.slice(0, 4)
+})
+
+watch(featured, async () => {
+  await nextTick()
+  refreshReveal()
+}, { immediate: true })
 
 const stats = [
   { num: '2,500+', label: 'Piezas creadas' },

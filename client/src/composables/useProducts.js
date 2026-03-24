@@ -1,146 +1,83 @@
 import { ref } from 'vue'
 
-const products = ref([
-  {
-    id: 1,
-    name: 'Sofá Onyx',
-    category: 'Sala',
-    img: '/product_living.png',
-    gallery: ['/product_living.png', '/product_bedroom.png', '/product_office.png'],
-    badge: 'Nuevo',
-    desc: 'Tapizado en lino italiano, estructura de madera de nogal. Su diseño minimalista y grandes proporciones ofrecen un confort inigualable, ideal para espacios que respiran lujo silencioso.',
-    materials: ['Nogal', 'Lino'],
-    sizes: ['2 Plazas', '3 Plazas', 'Seccional'],
-    colors: [
-      { name: 'Gris Claro', hex: '#d3d3d3' },
-      { name: 'Beige', hex: '#f5f5dc' },
-      { name: 'Carbón', hex: '#36454f' }
-    ],
-    price: 85000
-  },
-  {
-    id: 2,
-    name: 'Comedor Nogal',
-    category: 'Comedor',
-    img: '/product_dining.png',
-    gallery: ['/product_dining.png', '/about_workshop.png', '/product_office.png'],
-    badge: null,
-    desc: 'Mesa para 8 personas en madera maciza de nogal, patas metálicas. Cada veta cuenta una historia, convirtiendo cada cena en un ritual de diseño y sofisticación.',
-    materials: ['Nogal', 'Acero'],
-    sizes: ['6 Personas', '8 Personas', '10 Personas'],
-    colors: [
-      { name: 'Nogal Natural', hex: '#4B3621' },
-      { name: 'Nogal Oscuro', hex: '#3b2f2f' }
-    ],
-    price: 120000
-  },
-  {
-    id: 3,
-    name: 'Suite Serena',
-    category: 'Recámara',
-    img: '/product_bedroom.png',
-    gallery: ['/product_bedroom.png', '/hero_furniture.png', '/product_living.png'],
-    badge: 'Exclusivo',
-    desc: 'Cama king con cabecero tapizado en cuero natural. El reposo elevado al mayor nivel de confort, donde el cuero y la madera se encuentran en perfecta armonía.',
-    materials: ['Cuero', 'Fresno'],
-    sizes: ['Matrimonial', 'Queen Size', 'King Size'],
-    colors: [
-      { name: 'Tabaco', hex: '#704214' },
-      { name: 'Negro', hex: '#000000' }
-    ],
-    price: 95000
-  },
-  {
-    id: 4,
-    name: 'Escritorio Axis',
-    category: 'Oficina',
-    img: '/product_office.png',
-    gallery: ['/product_office.png', '/about_workshop.png', '/hero_furniture.png'],
-    badge: null,
-    desc: 'Diseño minimalista con cajones laterales y superficie tratada. Un espacio de trabajo concebido para la claridad mental y la máxima elegancia.',
-    materials: ['Roble', 'Mármol'],
-    sizes: ['120cm', '150cm', '180cm'],
-    colors: [
-      { name: 'Roble Claro', hex: '#c19a6b' },
-      { name: 'Mármol Blanco', hex: '#f9f9f9' },
-      { name: 'Negro Mate', hex: '#222222' }
-    ],
-    price: 68000
-  },
-  {
-    id: 5,
-    name: 'Sillón Amber',
-    category: 'Sala',
-    img: '/product_living.png',
-    gallery: ['/product_living.png', '/product_dining.png', '/product_bedroom.png'],
-    badge: null,
-    desc: 'Sillón lounge de lectura, tapizado en terciopelo tostado. La pieza statement que todo rincón especial necesita, cobijando tus momentos de paz.',
-    materials: ['Haya', 'Terciopelo'],
-    sizes: ['Estandar'],
-    colors: [
-      { name: 'Terracota', hex: '#e2725b' },
-      { name: 'Verde Olivo', hex: '#556b2f' },
-      { name: 'Mostaza', hex: '#ffdb58' }
-    ],
-    price: 42000
-  },
-  {
-    id: 6,
-    name: 'Aparador Lumen',
-    category: 'Comedor',
-    img: '/product_dining.png',
-    gallery: ['/product_dining.png', '/product_living.png', '/hero_furniture.png'],
-    badge: 'Bestseller',
-    desc: 'Aparador con puertas de ratán y pies metálicos dorados. Funcionalidad y arte convergen, ofreciendo un guardado sutil y un frente texturizado.',
-    materials: ['Ratán', 'Latón'],
-    sizes: ['140cm', '180cm'],
-    colors: [
-      { name: 'Ratán Natural', hex: '#d4bc8b' },
-      { name: 'Negro Ceniza', hex: '#36454f' }
-    ],
-    price: 54000
-  },
-  {
-    id: 7,
-    name: 'Velador Lunar',
-    category: 'Recámara',
-    img: '/product_bedroom.png',
-    gallery: ['/product_bedroom.png', '/product_office.png', '/about_workshop.png'],
-    badge: null,
-    desc: 'Mesa de noche en mármol travertino con base de bronce. Pequeños detalles que elevan tu santuario de descanso noche tras noche.',
-    materials: ['Mármol', 'Bronce'],
-    sizes: ['Único'],
-    colors: [
-      { name: 'Travertino Navona', hex: '#e5d3b3' },
-      { name: 'Bronce Envejecido', hex: '#b08d57' }
-    ],
-    price: 28000
-  },
-  {
-    id: 8,
-    name: 'Silla Director',
-    category: 'Oficina',
-    img: '/product_office.png',
-    gallery: ['/product_office.png', '/product_dining.png', '/product_living.png'],
-    badge: null,
-    desc: 'Silla de piel genuina con base de madera oscura. La autoridad y el confort, tallados en un perfil moderno y atemporal.',
-    materials: ['Piel', 'Wengué'],
-    sizes: ['Ejecutiva', 'Directiva'],
-    colors: [
-      { name: 'Cognac', hex: '#9a463d' },
-      { name: 'Negro', hex: '#000000' }
-    ],
-    price: 35000
+const API_URL = 'http://localhost:3001/api/public'
+
+// Mapea un producto de la BD al formato que usa el template del client
+function mapProduct(p) {
+  return {
+    id:        p.id,
+    name:      p.nombre,
+    category:  p.categorias?.[0] || 'Sin categoría',
+    img:       p.imagen_principal || '/product_living.png',
+    gallery:   p.galeria && p.galeria.length > 0
+                 ? p.galeria
+                 : (p.imagen_principal ? [p.imagen_principal] : ['/product_living.png']),
+    badge:     p.descuento > 0 ? `-${p.descuento}%` : null,
+    desc:      p.descripcion || '',
+    materials: p.materiales || [],
+    sizes:     p.tamanios || [],
+    colors:    (p.colores || []).map(c => {
+      // colores puede ser ["Rojo · #ff0000"] o ["Rojo"] según cómo se guardó
+      if (typeof c === 'object' && c.name) return { name: c.name, hex: c.hex || '#888' }
+      const str = String(c)
+      // Intentar detectar hex inline: "Nombre · #aabbcc"
+      const hexMatch = str.match(/#([0-9a-fA-F]{3,6})/)
+      const hex = hexMatch ? hexMatch[0] : '#888888'
+      const name = str.replace(/·?\s*#[0-9a-fA-F]{3,6}/, '').trim() || str
+      return { name, hex }
+    }),
+    price:      p.descuento > 0 ? (p.precio - (p.precio * p.descuento / 100)) : parseFloat(p.precio) || 0,
+    originalPrice: p.descuento > 0 ? parseFloat(p.precio) : null,
+    stock:      p.stock || 0,
+    ancho:      p.ancho || 0,
+    alto:       p.alto || 0,
+    profundidad: p.profundidad || 0,
+    relacionados: p.productos_relacionados || [],
   }
-])
+}
+
+// Estado compartido entre todas las instancias del composable
+const products   = ref([])
+const loading    = ref(false)
+const loaded     = ref(false)
+const error      = ref(null)
+
+async function fetchProducts() {
+  if (loaded.value || loading.value) return
+  loading.value = true
+  error.value   = null
+  try {
+    const res  = await fetch(`${API_URL}/productos`)
+    if (!res.ok) throw new Error('Error al cargar productos')
+    const data = await res.json()
+    products.value = data.map(mapProduct)
+    loaded.value = true
+  } catch (e) {
+    console.error('useProducts:', e)
+    error.value = e.message
+  } finally {
+    loading.value = false
+  }
+}
 
 export function useProducts() {
+  // Auto-cargar cuando se invoca el composable
+  fetchProducts()
+
   const getProductById = (id) => {
-    return products.value.find(p => p.id === parseInt(id))
+    return products.value.find(p => String(p.id) === String(id)) || null
+  }
+
+  const reload = () => {
+    loaded.value = false
+    fetchProducts()
   }
 
   return {
     products,
-    getProductById
+    loading,
+    error,
+    getProductById,
+    reload,
   }
 }

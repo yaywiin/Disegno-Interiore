@@ -185,6 +185,11 @@ import Modal from "@/components/ui/Modal.vue";
 
 const API_URL = 'http://localhost:3001/api/users'
 
+const authHeaders = () => ({
+  'Content-Type': 'application/json',
+  'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+})
+
 const users = ref([]);
 const loading = ref(false);
 const error = ref('');
@@ -207,7 +212,7 @@ const fetchUsers = async () => {
   loading.value = true;
   error.value = '';
   try {
-    const res = await fetch(API_URL);
+    const res = await fetch(API_URL, { headers: authHeaders() });
     if (!res.ok) throw new Error('Error al obtener usuarios');
     const data = await res.json();
     users.value = data.map(u => ({
@@ -265,13 +270,13 @@ const saveUser = async () => {
       if (!form.value.contrasena) { error.value = 'La contraseña es requerida'; return; }
       res = await fetch(API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders(),
         body: JSON.stringify(payload)
       });
     } else {
       res = await fetch(`${API_URL}/${form.value.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders(),
         body: JSON.stringify(payload)
       });
     }
@@ -292,7 +297,7 @@ const saveUser = async () => {
 const deleteUser = async (userToDelete) => {
   if (!confirm(`¿Estás seguro de que deseas borrar a ${userToDelete.nombre}?`)) return;
   try {
-    const res = await fetch(`${API_URL}/${userToDelete.id}`, { method: 'DELETE' });
+    const res = await fetch(`${API_URL}/${userToDelete.id}`, { method: 'DELETE', headers: authHeaders() });
     if (!res.ok) throw new Error('Error al eliminar usuario');
     await fetchUsers();
   } catch (err) {

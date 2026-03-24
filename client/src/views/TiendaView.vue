@@ -41,41 +41,59 @@
     <!-- PRODUCT GRID -->
     <section class="store-grid-section">
       <div class="container">
-        <p class="results-count">{{ filteredProducts.length }} piezas encontradas</p>
-        <div class="products-grid" v-if="filteredProducts.length">
-          <router-link
-            class="product-card reveal"
-            :class="`delay-${(i % 4) + 1}`"
-            v-for="(p, i) in filteredProducts"
-            :key="p.id"
-            :to="`/tienda/${p.id}`"
-          >
-            <div class="product-img-wrap">
-              <img :src="p.img" :alt="p.name" class="product-img" />
-              <div class="product-overlay">
-                <span class="btn btn-outline-light product-btn">Ver detalles</span>
-              </div>
-              <div class="product-badge" v-if="p.badge">{{ p.badge }}</div>
-            </div>
-            <div class="product-info">
-              <div class="product-header">
-                <span class="card-cat label">{{ p.category }}</span>
-              </div>
-              <h3 class="product-name">{{ p.name }}</h3>
-              <p class="product-desc">{{ p.desc }}</p>
-              <div class="product-footer">
-                <div class="material-tag" v-for="m in p.materials" :key="m">{{ m }}</div>
-              </div>
-              <p class="product-price" style="margin-top:16px; font-weight:500; font-size:14px; color:var(--c-dark);">
-                {{ formatPrice(p.price) }}
-              </p>
-            </div>
-          </router-link>
+        <!-- Loading -->
+        <div v-if="loading" class="empty-state">
+          <span class="empty-icon" style="animation: pulse 1.5s infinite;">◇</span>
+          <p>Cargando colección...</p>
         </div>
-        <div class="empty-state" v-else>
-          <span class="empty-icon">◇</span>
-          <p>No se encontraron piezas con ese criterio.</p>
+        <!-- Error -->
+        <div v-else-if="error" class="empty-state">
+          <span class="empty-icon">⚠</span>
+          <p>{{ error }}</p>
         </div>
+        <template v-else>
+          <p class="results-count">{{ filteredProducts.length }} piezas encontradas</p>
+          <div class="products-grid" v-if="filteredProducts.length">
+            <router-link
+              class="product-card reveal"
+              :class="`delay-${(i % 4) + 1}`"
+              v-for="(p, i) in filteredProducts"
+              :key="p.id"
+              :to="`/tienda/${p.id}`"
+            >
+              <div class="product-img-wrap">
+                <!-- Fallback a imagen default en caso de error y loading='lazy' por rendimiento -->
+                <img :src="p.img" :alt="p.name" class="product-img" loading="lazy" @error="e => e.target.src='/product_living.png'" />
+                <div class="product-overlay">
+                  <span class="btn btn-outline-light product-btn">Ver detalles</span>
+                </div>
+                <div class="product-badge" v-if="p.badge">{{ p.badge }}</div>
+              </div>
+              <div class="product-info">
+                <div class="product-header">
+                  <span class="card-cat label">{{ p.category }}</span>
+                </div>
+                <h3 class="product-name">{{ p.name }}</h3>
+                <p class="product-desc">{{ p.desc }}</p>
+                <div class="product-footer">
+                  <div class="material-tag" v-for="m in p.materials" :key="m">{{ m }}</div>
+                </div>
+                <div class="product-price-wrap" style="margin-top:16px;">
+                  <p v-if="p.originalPrice" class="product-price-original" style="font-size:12px; color:var(--c-muted); text-decoration:line-through; margin-bottom: 2px;">
+                    {{ formatPrice(p.originalPrice) }}
+                  </p>
+                  <p class="product-price" style="font-weight:500; font-size:14px; color:var(--c-dark);">
+                    {{ formatPrice(p.price) }}
+                  </p>
+                </div>
+              </div>
+            </router-link>
+          </div>
+          <div class="empty-state" v-else>
+            <span class="empty-icon">◇</span>
+            <p>No se encontraron piezas con ese criterio.</p>
+          </div>
+        </template>
       </div>
     </section>
 
@@ -95,17 +113,21 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { useRevealAnimation } from '../composables/useRevealAnimation'
 import { useProducts } from '../composables/useProducts'
 
-useRevealAnimation()
-const { products } = useProducts()
+const { refresh: refreshReveal } = useRevealAnimation()
+const { products, loading, error } = useProducts()
 
 const activeCategory = ref('Todos')
 const searchQuery = ref('')
 
-const categories = ['Todos', 'Sala', 'Comedor', 'Recámara', 'Oficina', 'Exterior']
+// Categorías dinámicas derivadas de los productos
+const categories = computed(() => {
+  const cats = new Set(products.value.map(p => p.category).filter(Boolean))
+  return ['Todos', ...Array.from(cats)]
+})
 
 const formatPrice = (value) => {
   return new Intl.NumberFormat('es-MX', {
@@ -128,6 +150,12 @@ const filteredProducts = computed(() => {
     )
   }
   return result
+})
+
+// Refrescar las animaciones cada vez que cambien los productos mostrados
+watch(filteredProducts, async () => {
+  await nextTick()
+  refreshReveal()
 })
 </script>
 

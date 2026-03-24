@@ -78,6 +78,7 @@ import AdminLayout from '@/components/layout/AdminLayout.vue'
 import ProductsTable from '@/components/tables/products/ProductsTable.vue'
 
 const API = 'http://localhost:3001/api/productos'
+const authHeaders = () => ({ 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` })
 const router = useRouter()
 
 const products = ref([])
@@ -91,7 +92,7 @@ const showDeleteModal = ref(false)
 const fetchProducts = async () => {
   loading.value = true
   try {
-    const res = await fetch(API)
+    const res = await fetch(API, { headers: authHeaders() })
     products.value = await res.json()
   } catch (e) {
     console.error('Error al cargar productos:', e)
@@ -119,7 +120,7 @@ const confirmDelete = (product) => {
 const deleteProduct = async () => {
   deleting.value = true
   try {
-    const res = await fetch(`${API}/${selected.value.id}`, { method: 'DELETE' })
+    const res = await fetch(`${API}/${selected.value.id}`, { method: 'DELETE', headers: authHeaders() })
     if (res.ok) {
       products.value = products.value.filter(p => p.id !== selected.value.id)
       showDeleteModal.value = false

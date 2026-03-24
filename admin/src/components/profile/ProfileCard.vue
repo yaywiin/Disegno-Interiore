@@ -3,23 +3,24 @@
     <div class="p-5 mb-6 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
       <div class="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
         <div class="flex flex-col items-center w-full gap-6 xl:flex-row">
+          <!-- Avatar con iniciales -->
           <div
-            class="w-20 h-20 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800"
+            class="flex w-20 h-20 items-center justify-center rounded-full border border-gray-200 dark:border-gray-800 bg-brand-500 text-white text-2xl font-bold select-none flex-shrink-0"
           >
-            <img src="/images/user/owner.jpg" alt="user" />
+            {{ userInitials }}
           </div>
           <div class="order-3 xl:order-2">
             <h4
               class="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-left"
             >
-              Musharof Chowdhury
+              {{ userName }}
             </h4>
             <div
               class="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left"
             >
-              <p class="text-sm text-gray-500 dark:text-gray-400">Team Manager</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">{{ userRol }}</p>
               <div class="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Arizona, United States</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">{{ userCorreo }}</p>
             </div>
           </div>
           <div class="flex items-center order-2 gap-2 grow xl:order-3 xl:justify-end">
@@ -170,7 +171,8 @@
                     </label>
                     <input
                       type="text"
-                      value="https://www.facebook.com/PimjoHQ"
+                      v-model="form.facebook"
+                      placeholder="https://facebook.com/tu-usuario"
                       class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                     />
                   </div>
@@ -183,7 +185,8 @@
                     </label>
                     <input
                       type="text"
-                      value="https://x.com/PimjoHQ"
+                      v-model="form.twitter"
+                      placeholder="https://x.com/tu-usuario"
                       class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                     />
                   </div>
@@ -196,7 +199,8 @@
                     </label>
                     <input
                       type="text"
-                      value="https://www.linkedin.com/company/pimjo/posts/?feedView=all"
+                      v-model="form.linkedin"
+                      placeholder="https://linkedin.com/in/tu-usuario"
                       class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                     />
                   </div>
@@ -209,7 +213,8 @@
                     </label>
                     <input
                       type="text"
-                      value="https://instagram.com/PimjoHQ"
+                      v-model="form.instagram"
+                      placeholder="https://instagram.com/tu-usuario"
                       class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                     />
                   </div>
@@ -229,7 +234,9 @@
                     </label>
                     <input
                       type="text"
-                      value="Musharof"
+                      :value="userName"
+                      disabled
+                      title="El nombre se gestiona desde la sección de Usuarios"
                       class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                     />
                   </div>
@@ -242,7 +249,9 @@
                     </label>
                     <input
                       type="text"
-                      value="Chowdhury"
+                      :value="userCorreo"
+                      disabled
+                      title="El correo se gestiona desde la sección de Usuarios"
                       class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                     />
                   </div>
@@ -255,7 +264,8 @@
                     </label>
                     <input
                       type="text"
-                      value="randomuser@pimjo.com"
+                      v-model="form.telefono"
+                      placeholder="+52 55 0000 0000"
                       class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                     />
                   </div>
@@ -268,7 +278,8 @@
                     </label>
                     <input
                       type="text"
-                      value="+09 363 398 46"
+                      v-model="form.bio"
+                      placeholder="Cuéntanos algo sobre ti"
                       class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                     />
                   </div>
@@ -281,7 +292,8 @@
                     </label>
                     <input
                       type="text"
-                      value="Team Manager"
+                      v-model="form.bio"
+                      placeholder="Cuéntanos algo sobre ti"
                       class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                     />
                   </div>
@@ -312,14 +324,29 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import Modal from './Modal.vue'
 
+// Leer datos del usuario desde localStorage (token JWT decodificado)
+const getUser = () => {
+  try { return JSON.parse(localStorage.getItem('user') || '{}') } catch { return {} }
+}
+const user = getUser()
+
+const userName  = computed(() => user.nombre  || 'Usuario')
+const userCorreo = computed(() => user.correo  || '')
+const userRol    = computed(() => user.rol     || '')
+const userInitials = computed(() => {
+  const parts = (user.nombre || 'U').trim().split(' ')
+  return parts.length >= 2
+    ? (parts[0][0] + parts[1][0]).toUpperCase()
+    : (parts[0][0] || 'U').toUpperCase()
+})
+
 const isProfileInfoModal = ref(false)
+const form = ref({ facebook: '', twitter: '', linkedin: '', instagram: '', telefono: '', bio: '' })
 
 const saveProfile = () => {
-  // Implement save profile logic here
-  console.log('Profile saved')
   isProfileInfoModal.value = false
 }
 </script>
