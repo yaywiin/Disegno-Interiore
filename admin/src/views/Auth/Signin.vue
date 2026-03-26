@@ -134,22 +134,6 @@
         <div class="absolute inset-8 border border-white/10 opacity-50 hidden xl:block pointer-events-none"></div>
 
         <div class="relative z-10 w-full h-full flex flex-col items-center justify-center p-12 lg:p-20 text-center">
-          <div class="mb-12 relative flex flex-col items-center justify-center p-8 lg:p-10 rounded-2xl border border-white/20 bg-white/5 shadow-2xl backdrop-blur-md">
-            <div class="absolute -top-[1px] left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-brand-400 to-transparent"></div>
-            <div class="flex items-center justify-center w-14 h-14 border border-brand-500 rotate-45 flex-shrink-0 shadow-[0_0_15px_rgba(155,152,97,0.3)] mb-8">
-              <div class="w-10 h-10 border border-brand-400/40"></div>
-            </div>
-            <div class="mt-2 text-center flex flex-col items-center">
-              <p class="text-white/80 text-[11px] tracking-[0.35em] uppercase font-light mb-1">Disegno</p>
-              <p class="text-brand-400 text-3xl italic" style="font-family: 'Playfair Display', serif; font-weight: 400; letter-spacing: 0.05em;">Interiore</p>
-            </div>
-            <div class="mt-6 flex items-center justify-center gap-3 opacity-60">
-              <div class="h-px w-10 bg-brand-500/80"></div>
-              <div class="w-1 h-1 bg-brand-500 rotate-45"></div>
-              <div class="h-px w-10 bg-brand-500/80"></div>
-            </div>
-          </div>
-
           <div>
             <h2 class="text-3xl lg:text-4xl lg:leading-[1.3] font-light text-white mb-5" style="font-family: 'Playfair Display', serif;">
               Diseño de élite,<br />
