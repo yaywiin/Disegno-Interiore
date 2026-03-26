@@ -252,25 +252,25 @@ const process = [
 .team-role { font-size: 11px; color: var(--c-muted); letter-spacing: 0.14em; text-transform: uppercase; }
 
 /* PROCESS */
-.process { background: var(--c-dark); }
+.process { background: var(--c-light); }
 .process .section-header .label { color: var(--c-brand); }
-.process .section-title { color: var(--c-white); }
+.process .section-title { color: var(--c-dark); }
 .process-steps {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 0;
-  border-top: 1px solid rgba(255,255,255,0.1);
+  border-top: 1px solid rgba(13,12,11,0.1);
 }
 .step {
   padding: 48px 36px 48px;
-  border-right: 1px solid rgba(255,255,255,0.08);
+  border-right: 1px solid rgba(13,12,11,0.08);
 }
 .step:last-child { border-right: none; }
 .step-num {
   font-family: var(--font-serif);
   font-size: 52px;
   font-weight: 400;
-  color: var(--c-brand);
+  color: var(--c-brand-dark);
   opacity: 0.3;
   line-height: 1;
   margin-bottom: 24px;
@@ -279,10 +279,10 @@ const process = [
   font-family: var(--font-serif);
   font-size: 20px;
   font-weight: 400;
-  color: var(--c-white);
+  color: var(--c-dark);
   margin-bottom: 14px;
 }
-.step-desc { font-size: 14px; color: rgba(255,255,255,0.4); line-height: 1.7; }
+.step-desc { font-size: 14px; color: rgba(13,12,11,0.6); line-height: 1.7; }
 
 /* RESPONSIVE */
 @media (max-width: 1000px) {
@@ -293,6 +293,6 @@ const process = [
   .values-grid { grid-template-columns: 1fr; }
   .team-grid { grid-template-columns: repeat(2, 1fr); }
   .process-steps { grid-template-columns: 1fr; }
-  .step { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .step { border-right: none; border-bottom: 1px solid rgba(13,12,11,0.08); }
 }
 </style>

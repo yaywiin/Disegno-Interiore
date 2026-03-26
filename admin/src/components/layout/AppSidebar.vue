@@ -234,6 +234,16 @@ const menuGroups = [
         name: "Categorías",
         path: "/categorias",
       },
+      {
+        icon: PageIcon,
+        name: "Pedidos",
+        path: "/pedidos",
+      },
+      {
+        icon: DocsIcon,
+        name: "Reportes",
+        path: "/reportes",
+      },
     ],
   },
 ];

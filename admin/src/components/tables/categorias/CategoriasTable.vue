@@ -22,7 +22,7 @@
         </thead>
         <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
           <tr
-            v-for="categoria in categorias"
+            v-for="categoria in paginatedCategorias"
             :key="categoria.id"
             class="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-white/[0.05]"
           >
@@ -71,13 +71,39 @@
         </tbody>
       </table>
     </div>
+    <!-- Paginación -->
+    <div
+      v-if="totalPages > 1"
+      class="flex items-center justify-between border-t border-gray-200 dark:border-gray-800 px-5 py-4 sm:px-6"
+    >
+      <span class="text-sm text-gray-500 dark:text-gray-400">
+        Mostrando {{ (currentPage - 1) * itemsPerPage + 1 }} a {{ Math.min(currentPage * itemsPerPage, categorias.length) }} de {{ categorias.length }}
+      </span>
+      <div class="flex gap-2">
+        <button
+          @click="currentPage--"
+          :disabled="currentPage === 1"
+          class="rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/[0.05] disabled:opacity-50 transition-colors"
+        >
+          Anterior
+        </button>
+        <button
+          @click="currentPage++"
+          :disabled="currentPage === totalPages"
+          class="rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/[0.05] disabled:opacity-50 transition-colors"
+        >
+          Siguiente
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
+import { ref, computed } from 'vue'
 import { Eye, Pencil, Trash2 } from 'lucide-vue-next'
 
-defineProps({
+const props = defineProps({
   categorias: {
     type: Array,
     required: true,
@@ -86,6 +112,17 @@ defineProps({
 })
 
 defineEmits(['view', 'edit', 'delete'])
+
+const currentPage = ref(1)
+const itemsPerPage = 10
+
+const totalPages = computed(() => Math.ceil(props.categorias.length / itemsPerPage))
+
+const paginatedCategorias = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage
+  const end = start + itemsPerPage
+  return props.categorias.slice(start, end)
+})
 
 const formatDate = (dateStr) => {
   if (!dateStr) return '—'

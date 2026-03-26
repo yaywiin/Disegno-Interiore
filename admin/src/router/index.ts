@@ -41,6 +41,24 @@ const router = createRouter({
       meta: { title: 'Categorías', requiresAuth: true },
     },
     {
+      path: '/pedidos',
+      name: 'Pedidos',
+      component: () => import('../views/Pedidos/PedidosView.vue'),
+      meta: { title: 'Pedidos', requiresAuth: true },
+    },
+    {
+      path: '/pedidos/:id',
+      name: 'PedidoDetail',
+      component: () => import('../views/Pedidos/PedidoDetailView.vue'),
+      meta: { title: 'Detalles del Pedido', requiresAuth: true },
+    },
+    {
+      path: '/reportes',
+      name: 'Reportes',
+      component: () => import('../views/Reportes/ReportesView.vue'),
+      meta: { title: 'Corte de Ventas', requiresAuth: true },
+    },
+    {
       path: '/ecommerce',
       name: 'Ecommerce',
       component: () => import('../views/Ecommerce.vue'),

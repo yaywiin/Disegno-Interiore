@@ -11,6 +11,7 @@ const materialesRouter = require('./routes/materiales')
 const tamaniosRouter = require('./routes/tamanios')
 const uploadRouter  = require('./routes/upload')
 const { verifyToken } = require('./middleware/auth')
+const pedidosRouter = require('./routes/pedidos')
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -43,6 +44,34 @@ const initDB = async () => {
     // Verificar tabla categorias
     await pool.query('SELECT id, nombre, fecha_de_alta FROM categorias LIMIT 1')
     console.log('✅ Tabla "categorias" accesible en Neon PostgreSQL')
+
+    // Crear tabla pedidos
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS pedidos (
+        id VARCHAR(9) PRIMARY KEY,
+        nombre_cliente VARCHAR(150) NOT NULL,
+        total DECIMAL(10,2) NOT NULL,
+        ciudad_estado VARCHAR(150) NOT NULL,
+        fecha_pedido TIMESTAMPTZ DEFAULT NOW(),
+        estado VARCHAR(20) CHECK (estado IN ('Pendiente', 'En Proceso', 'Completado', 'Fallido', 'Reembolsado', 'Cancelado')) DEFAULT 'Pendiente'
+      )
+    `)
+    
+    // Agregar nuevas columnas si no existen
+    await pool.query(`
+      ALTER TABLE pedidos
+      ADD COLUMN IF NOT EXISTS apellidos VARCHAR(150),
+      ADD COLUMN IF NOT EXISTS correo VARCHAR(150),
+      ADD COLUMN IF NOT EXISTS telefono VARCHAR(50),
+      ADD COLUMN IF NOT EXISTS calle_numero VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS ciudad VARCHAR(100),
+      ADD COLUMN IF NOT EXISTS codigo_postal VARCHAR(20),
+      ADD COLUMN IF NOT EXISTS estado_republica VARCHAR(100),
+      ADD COLUMN IF NOT EXISTS productos JSONB,
+      ADD COLUMN IF NOT EXISTS notas TEXT,
+      ADD COLUMN IF NOT EXISTS metodo_pago VARCHAR(50) DEFAULT 'Tarjeta'
+    `)
+    console.log('✅ Tabla "pedidos" lista en Neon PostgreSQL')
 
     // Ampliar codigo_hex de CHAR(1) a VARCHAR(7) si todavía es demasiado corto
     try {
@@ -107,6 +136,51 @@ app.get('/api/public/productos/:id', async (req, res) => {
   }
 })
 
+// Ruta pública para crear pedido desde el checkout
+app.post('/api/public/pedidos', async (req, res) => {
+  const { 
+    nombre_cliente, apellidos, correo, telefono, 
+    calle_numero, ciudad, codigo_postal, estado_republica, 
+    productos, total, metodo_pago 
+  } = req.body
+  
+  if (!nombre_cliente || !correo || !total) {
+    return res.status(400).json({ error: 'Faltan campos obligatorios' })
+  }
+
+  try {
+    const pool = require('./db')
+    
+    let isUnique = false
+    let newId = ''
+    while (!isUnique) {
+      newId = Math.floor(100000000 + Math.random() * 900000000).toString()
+      const check = await pool.query('SELECT id FROM pedidos WHERE id = $1', [newId])
+      if (check.rows.length === 0) isUnique = true
+    }
+
+    const ciudad_estado = `${ciudad || ''}, ${estado_republica || ''}`
+    const mp = metodo_pago || 'Tarjeta'
+    
+    const result = await pool.query(
+      `INSERT INTO pedidos (
+        id, nombre_cliente, apellidos, correo, telefono, 
+        calle_numero, ciudad, codigo_postal, estado_republica, 
+        productos, total, ciudad_estado, estado, metodo_pago
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *`,
+      [
+        newId, nombre_cliente, apellidos, correo, telefono,
+        calle_numero, ciudad, codigo_postal, estado_republica,
+        productos ? JSON.stringify(productos) : null, total, ciudad_estado, 'Pendiente', mp
+      ]
+    )
+    res.status(201).json(result.rows[0])
+  } catch (err) {
+    console.error('Error al crear pedido público:', err)
+    res.status(500).json({ error: 'Error interno del servidor al procesar el pedido' })
+  }
+})
+
 // Rutas protegidas (requieren JWT válido)
 app.use('/api/users', verifyToken, usersRouter)
 app.use('/api/categorias', verifyToken, categoriasRouter)
@@ -115,6 +189,7 @@ app.use('/api/colores', verifyToken, coloresRouter)
 app.use('/api/materiales', verifyToken, materialesRouter)
 app.use('/api/tamanios',   verifyToken, tamaniosRouter)
 app.use('/api/upload',     verifyToken, uploadRouter)
+app.use('/api/pedidos',    verifyToken, pedidosRouter)
 
 // Ruta de salud
 app.get('/api/health', (req, res) => {

@@ -757,7 +757,7 @@ const stats = [
    STATS
 ================================================================ */
 .stats-section {
-  background: var(--c-dark);
+  background: var(--c-light);
   padding: 80px 0;
 }
 .stats-grid {
@@ -771,7 +771,7 @@ const stats = [
   font-family: var(--font-serif);
   font-size: clamp(40px, 4.5vw, 64px);
   font-weight: 400;
-  color: var(--c-brand-light);
+  color: var(--c-brand-dark);
   line-height: 1;
 }
 .stat-label {
@@ -779,7 +779,7 @@ const stats = [
   font-weight: bold;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: white;
+  color: var(--c-dark);
 }
 
 /* ================================================================

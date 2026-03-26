@@ -15,23 +15,25 @@
             <div class="form-row">
               <div class="form-group">
                 <label>Nombre(s)</label>
-                <input type="text" class="form-input" required placeholder="Ingresa tu nombre" />
+                <input v-model="form.nombres" type="text" class="form-input" required placeholder="Ingresa tu nombre" />
               </div>
               <div class="form-group">
                 <label>Apellidos</label>
-                <input type="text" class="form-input" required placeholder="Ingresa tus apellidos" />
+                <input v-model="form.apellidos" type="text" class="form-input" required placeholder="Ingresa tus apellidos" />
               </div>
             </div>
 
-            <div class="form-group">
-              <label>Correo Electrónico</label>
-              <input type="email" class="form-input" required placeholder="tu@correo.com" />
-            </div>
-
-            <div class="form-group">
-              <label>Teléfono Movil</label>
-              <input type="tel" class="form-input" required placeholder="+52 55 0000 0000" />
-            </div>
+             <div class="form-row">
+               <div class="form-group">
+                 <label>Correo Electrónico</label>
+                 <input v-model="form.correo" type="email" class="form-input" required placeholder="tu@correo.com" />
+               </div>
+   
+               <div class="form-group">
+                 <label>Teléfono Movil</label>
+                 <input v-model="form.telefono" type="tel" class="form-input" required placeholder="+52 55 0000 0000" />
+               </div>
+             </div>
 
             <div class="form-group" style="margin-top: 24px;">
               <span class="sub-label">Dirección de entrega</span>
@@ -39,33 +41,49 @@
 
             <div class="form-group">
               <label>Calle y Número</label>
-              <input type="text" class="form-input" required placeholder="Ej: Av. Paseo de la Reforma 123" />
+              <input v-model="form.calle" type="text" class="form-input" required placeholder="Ej: Av. Paseo de la Reforma 123" />
             </div>
             
             <div class="form-row">
               <div class="form-group">
                 <label>Ciudad</label>
-                <input type="text" class="form-input" required placeholder="Ciudad" />
+                <input v-model="form.ciudad" type="text" class="form-input" required placeholder="Ciudad" />
               </div>
               <div class="form-group">
                 <label>Código Postal</label>
-                <input type="text" class="form-input" required placeholder="C.P." />
+                <input v-model="form.cp" type="text" class="form-input" required placeholder="C.P." />
               </div>
             </div>
 
             <div class="form-group">
               <label>Estado</label>
-              <select class="form-input form-select" required>
-                <option value="">Selecciona tu estado</option>
+              <select v-model="form.estado" class="form-input form-select" required>
+                <option value="" disabled>Selecciona tu estado</option>
                 <option value="CDMX">Ciudad de México</option>
-                <option value="JAL">Jalisco</option>
-                <option value="NL">Nuevo León</option>
-                <option value="QRO">Querétaro</option>
-                <option value="OTHER">Otro (Cotizar envío por separado)</option>
+                <option value="Jalisco">Jalisco</option>
+                <option value="Nuevo Leon">Nuevo León</option>
+                <option value="Queretaro">Querétaro</option>
+                <option value="Otro">Otro (Cotizar envío por separado)</option>
               </select>
             </div>
 
-            <button type="submit" class="btn btn-primary submit-btn">
+            <div class="form-group" style="margin-top: 24px;">
+              <span class="sub-label">Método de Pago</span>
+            </div>
+
+            <div class="form-row" style="margin-bottom: 32px">
+              <label class="flex items-center gap-2 cursor-pointer p-4 border rounded-lg hover:border-black transition-colors" :class="{ 'border-black bg-gray-50': form.metodoPago === 'Tarjeta' }">
+                <input type="radio" v-model="form.metodoPago" value="Tarjeta" name="metodo_pago" class="accent-black w-4 h-4 cursor-pointer" />
+                <span class="text-sm">Pago con Tarjeta</span>
+              </label>
+              
+              <label class="flex items-center gap-2 cursor-pointer p-4 border rounded-lg hover:border-black transition-colors" :class="{ 'border-black bg-gray-50': form.metodoPago === 'Transferencia' }">
+                <input type="radio" v-model="form.metodoPago" value="Transferencia" name="metodo_pago" class="accent-black w-4 h-4 cursor-pointer" />
+                <span class="text-sm">Transferencia SPEI</span>
+              </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary submit-btn" :disabled="isSubmitting">
               <span>Continuar con el pago seguro</span>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
@@ -136,6 +154,7 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useCart } from '../composables/useCart'
 import { useRouter } from 'vue-router'
 import { useRevealAnimation } from '../composables/useRevealAnimation'
@@ -144,6 +163,19 @@ useRevealAnimation()
 
 const { cartItems, cartTotal, clearCart } = useCart()
 const router = useRouter()
+const isSubmitting = ref(false)
+
+const form = ref({
+  nombres: '',
+  apellidos: '',
+  correo: '',
+  telefono: '',
+  calle: '',
+  ciudad: '',
+  cp: '',
+  estado: '',
+  metodoPago: 'Tarjeta'
+})
 
 const formatPrice = (value) => {
   return new Intl.NumberFormat('es-MX', {
@@ -152,10 +184,50 @@ const formatPrice = (value) => {
   }).format(value)
 }
 
-const submitOrder = () => {
-  alert('Simulación de redirección a pago. Orden creada internamente.')
-  clearCart()
-  router.push('/')
+const submitOrder = async () => {
+  if (cartItems.value.length === 0) {
+    alert('Tu carrito está vacío')
+    return
+  }
+  
+  isSubmitting.value = true
+  
+  const payload = {
+    nombre_cliente: form.value.nombres,
+    apellidos: form.value.apellidos,
+    correo: form.value.correo,
+    telefono: form.value.telefono,
+    calle_numero: form.value.calle,
+    ciudad: form.value.ciudad,
+    codigo_postal: form.value.cp,
+    estado_republica: form.value.estado,
+    total: cartTotal.value,
+    metodo_pago: form.value.metodoPago,
+    productos: cartItems.value
+  }
+
+  try {
+    const response = await fetch('http://localhost:3001/api/public/pedidos', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+    
+    if (response.ok) {
+      alert('¡Pedido simulado con éxito! Tus datos y productos han sido capturados para el administrador.')
+      clearCart()
+      router.push('/')
+    } else {
+      alert('Hubo un error al procesar el pedido.')
+    }
+  } catch(e) {
+    console.error('Error enviando orden:', e)
+    alert('Fallo de conexión')
+  } finally {
+    isSubmitting.value = false
+  }
 }
 </script>
 

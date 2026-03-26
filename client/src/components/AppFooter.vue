@@ -2,7 +2,7 @@
   <footer class="footer">
     <div class="footer-top-bar container">
       <div class="footer-brand">
-        <AppLogo theme="dark" size="medium" />
+        <AppLogo theme="light" size="medium" />
       </div>
       <p class="brand-tagline">Mobiliario que define espacios.<br>Diseño que perdura en el tiempo.</p>
     </div>
@@ -45,7 +45,7 @@
         <!-- Instagram -->
         <a class="social-icon" aria-label="Instagram">
           <div class="icon-circle"></div>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="stroke-icon" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
             <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
             <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
@@ -60,7 +60,7 @@
               height="24"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#fffafa"
+              class="stroke-icon"
               stroke-width="1.5"
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -73,7 +73,7 @@
         <!-- Facebook -->
         <a class="social-icon" aria-label="Facebook">
            <div class="icon-circle"></div>
-           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="stroke-icon" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
           </svg>
         </a>
@@ -87,19 +87,18 @@
 
 <style scoped>
 .footer {
-  background: linear-gradient(180deg, #1A1917 0%, #151412 100%);
-  color: var(--c-white);
+  background: var(--c-light);
+  color: var(--c-dark);
   margin-top: auto;
   position: relative;
 }
 
 /* Optional subtle glow overlay on background */
 .footer::before {
-  content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 200px;
-  background: radial-gradient(ellipse at top, rgba(155, 152, 97, 0.05) 0%, transparent 70%);
+  background: radial-gradient(ellipse at top, rgba(155, 152, 97, 0.15) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -117,13 +116,13 @@
 .brand-tagline {
   font-size: 13px;
   line-height: 1.7;
-  color: white;
+  color: var(--c-dark);
   text-align: right;
 }
 
 .footer-divider {
   height: 1px;
-  background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 100%);
+  background: radial-gradient(circle, rgba(13,12,11,0.12) 0%, rgba(13,12,11,0) 100%);
   margin: 0;
   width: 100%;
 }
@@ -148,11 +147,11 @@
 .footer-link {
   font-size: 13px;
   font-weight: 300;
-  color: white;
+  color: var(--c-dark);
   cursor: pointer;
   transition: color 0.3s;
 }
-.footer-link:hover { color: rgba(152, 150, 150, 0.9); }
+.footer-link:hover { color: rgba(13, 12, 11, 0.6); }
 
 .footer-bottom {
   display: flex;
@@ -166,7 +165,7 @@
 .footer-copy {
   font-size: 11px;
   font-weight: 300;
-  color: white;
+  color: var(--c-dark);
   letter-spacing: 0.08em;
 }
 
@@ -174,7 +173,7 @@
 
 .social-icon {
   position: relative;
-  color: rgba(255,255,255,0.4);
+  /* El stroke-icon class inyecta el color predeterminado al SVG */
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -197,7 +196,10 @@
 .social-icon svg {
   position: relative;
   z-index: 1;
-  transition: color 0.4s var(--ease), transform 0.4s var(--ease);
+  transition: transform 0.4s var(--ease);
+}
+.stroke-icon {
+  stroke: var(--c-dark);
 }
 
 .social-icon:hover .icon-circle {

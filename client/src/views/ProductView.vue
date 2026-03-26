@@ -99,11 +99,11 @@
             </div>
 
             <div class="option-group">
-              <label class="option-label">Cantidad</label>
+              <label class="option-label">Cantidad (Disponibles: {{ product.stock }})</label>
               <div class="qty-selector">
-                 <button @click="quantity > 1 ? quantity-- : null">−</button>
+                 <button @click="quantity > 1 ? quantity-- : null" :disabled="quantity <= 1">−</button>
                 <span>{{ quantity }}</span>
-                <button @click="quantity++">+</button>
+                <button @click="quantity < product.stock ? quantity++ : null" :disabled="quantity >= product.stock">+</button>
               </div>
             </div>
           </div>
