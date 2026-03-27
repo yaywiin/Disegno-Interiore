@@ -18,14 +18,7 @@ const PORT = process.env.PORT || 3001
 
 // Middleware
 app.use(cors({
-  origin: [
-    // Desarrollo local
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'http://localhost:3000',
-    // Producción Vercel (agrega aquí las URLs de tu admin y cliente cuando las tengas)
-    /\.vercel\.app$/,
-  ],
+  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }))
