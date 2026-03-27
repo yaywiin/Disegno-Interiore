@@ -154,7 +154,7 @@ const selectedImage    = ref('')
 const selectedSize     = ref('')
 const selectedColor    = ref(null)
 
-const API = 'http://localhost:3001/api/public'
+const API = (import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/api/public'
 
 const formatPrice = (value) => {
   return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(value)

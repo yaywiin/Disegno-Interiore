@@ -17,8 +17,18 @@ const app = express()
 const PORT = process.env.PORT || 3001
 
 // Middleware
+const devOrigins = ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000']
+const prodOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+  : []
+const allowedOrigins = [...devOrigins, ...prodOrigins]
+
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'],
+  origin: (origin, callback) => {
+    // Permite requests sin origin (Postman, server-to-server) y los orígenes registrados
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true)
+    callback(new Error(`CORS: origen no permitido → ${origin}`))
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }))

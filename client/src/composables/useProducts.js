@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 
-const API_URL = 'http://localhost:3001/api/public'
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/api/public'
 
 // Mapea un producto de la BD al formato que usa el template del client
 function mapProduct(p) {
