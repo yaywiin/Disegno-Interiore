@@ -183,7 +183,8 @@ import AdminLayout from "@/components/layout/AdminLayout.vue";
 import UsersTable from "@/components/tables/users/UsersTable.vue";
 import Modal from "@/components/ui/Modal.vue";
 
-const API_URL = 'http://localhost:3001/api/users'
+import { API_BASE } from '@/config.js'
+const API_URL = `${API_BASE}/api/users`
 
 const authHeaders = () => ({
   'Content-Type': 'application/json',

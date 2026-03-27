@@ -77,7 +77,8 @@ import { Plus } from 'lucide-vue-next'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import ProductsTable from '@/components/tables/products/ProductsTable.vue'
 
-const API = 'http://localhost:3001/api/productos'
+import { API_BASE } from '@/config.js'
+const API = `${API_BASE}/api/productos`
 const authHeaders = () => ({ 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` })
 const router = useRouter()
 

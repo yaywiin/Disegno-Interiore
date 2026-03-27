@@ -120,6 +120,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
+import { API_BASE } from '@/config.js'
 
 // Por defecto inicia mostrando el reporte del mes actual
 const today = new Date()
@@ -138,7 +139,7 @@ const fetchReport = async () => {
   error.value = ''
   
   try {
-    let url = 'http://localhost:3001/api/pedidos/reportes/ventas'
+    let url = `${API_BASE}/api/pedidos/reportes/ventas`
     if (startDate.value && endDate.value) {
       // Set end date to 23:59:59 to include the whole day
       const endD = new Date(endDate.value)

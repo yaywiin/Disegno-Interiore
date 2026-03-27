@@ -141,7 +141,8 @@ import { Plus } from 'lucide-vue-next'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import CategoriasTable from '@/components/tables/categorias/CategoriasTable.vue'
 
-const API = 'http://localhost:3001/api/categorias'
+import { API_BASE } from '@/config.js'
+const API = `${API_BASE}/api/categorias`
 const authHeaders = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` })
 
 const categorias  = ref([])

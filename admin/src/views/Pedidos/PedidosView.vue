@@ -128,7 +128,8 @@ import { useRouter } from 'vue-router'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 
 const router = useRouter()
-const API = 'http://localhost:3001/api/pedidos'
+import { API_BASE } from '@/config.js'
+const API = `${API_BASE}/api/pedidos`
 const authHeaders = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` })
 
 const pedidos = ref([])

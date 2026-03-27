@@ -577,6 +577,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ArrowLeft, ChevronDown, ImageIcon, Images, Plus, Pencil, Trash2, Check, X } from 'lucide-vue-next'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
+import { API_BASE } from '@/config.js'
 
 const router = useRouter()
 const authHeaders = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` })
@@ -640,7 +641,7 @@ const categoriasOpts = ref([])
 
 onMounted(async () => {
   try {
-    const res = await fetch('http://localhost:3001/api/categorias', { headers: authHeaders() })
+    const res = await fetch(`${API_BASE}/api/categorias`, { headers: authHeaders() })
     categoriasOpts.value = await res.json()
   } catch (e) {
     console.error('Error al cargar categorías:', e)
@@ -661,7 +662,7 @@ const relDropdownRef = ref(null)
 onMounted(async () => {
   // Cargar lista para el autocomplete de relacionados
   try {
-    const res = await fetch('http://localhost:3001/api/productos', { headers: authHeaders() })
+    const res = await fetch(`${API_BASE}/api/productos`, { headers: authHeaders() })
     todosLosProductos.value = await res.json()
   } catch (e) {
     console.error('Error al cargar productos relacionados:', e)
@@ -699,7 +700,7 @@ function selectFirstRelacionado() {
 }
 
 // ── Image helpers ───────────────────────────────
-const API_URL = 'http://localhost:3001/api'
+const API_URL = `${API_BASE}/api`
 
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
@@ -781,9 +782,9 @@ const dbTamanios   = ref([])
 onMounted(async () => {
   // Cargar datos para los grupos de variaciones
   const [resC, resM, resT] = await Promise.allSettled([
-    fetch('http://localhost:3001/api/colores',   { headers: authHeaders() }).then(r => r.json()),
-    fetch('http://localhost:3001/api/materiales', { headers: authHeaders() }).then(r => r.json()),
-    fetch('http://localhost:3001/api/tamanios',   { headers: authHeaders() }).then(r => r.json()),
+    fetch(`${API_BASE}/api/colores`,   { headers: authHeaders() }).then(r => r.json()),
+    fetch(`${API_BASE}/api/materiales`, { headers: authHeaders() }).then(r => r.json()),
+    fetch(`${API_BASE}/api/tamanios`,   { headers: authHeaders() }).then(r => r.json()),
   ])
   if (resC.status === 'fulfilled') dbColores.value    = resC.value
   if (resM.status === 'fulfilled') dbMateriales.value = resM.value
@@ -867,7 +868,7 @@ async function saveNewColor(gi) {
   if (!group.newItem.nombre) return
   group.saving = true
   try {
-    const res = await fetch('http://localhost:3001/api/colores', {
+    const res = await fetch(`${API_BASE}/api/colores`, {
       method: 'POST', headers: authHeaders(),
       body: JSON.stringify({ nombre: group.newItem.nombre, codigo_hex: group.newItem.codigo_hex }),
     })
@@ -937,7 +938,7 @@ async function saveNewMaterial(gi) {
   if (!group.newItem.nombre) return
   group.saving = true
   try {
-    const res = await fetch('http://localhost:3001/api/materiales', {
+    const res = await fetch(`${API_BASE}/api/materiales`, {
       method: 'POST', headers: authHeaders(),
       body: JSON.stringify({ nombre: group.newItem.nombre, tipo: group.newItem.tipo }),
     })
@@ -957,7 +958,7 @@ async function saveNewTamanio(gi) {
   if (!group.newItem.nombre) return
   group.saving = true
   try {
-    const res = await fetch('http://localhost:3001/api/tamanios', {
+    const res = await fetch(`${API_BASE}/api/tamanios`, {
       method: 'POST', headers: authHeaders(),
       body: JSON.stringify(group.newItem),
     })
@@ -1055,7 +1056,7 @@ async function handleSubmit() {
       productos_relacionados: productosRelacionadosSelected.value.map(p => p.id),
     }
 
-    const res = await fetch('http://localhost:3001/api/productos', {
+    const res = await fetch(`${API_BASE}/api/productos`, {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify(payload),

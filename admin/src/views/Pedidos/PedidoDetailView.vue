@@ -192,12 +192,13 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ArrowLeftIcon } from 'lucide-vue-next'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
+import { API_BASE } from '@/config.js'
 
 const route = useRoute()
 const router = useRouter()
 const id = route.params.id
 
-const API = `http://localhost:3001/api/pedidos/${id}`
+const API = `${API_BASE}/api/pedidos/${id}`
 const authHeaders = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` })
 
 const pedido = ref(null)

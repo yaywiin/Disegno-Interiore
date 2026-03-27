@@ -262,8 +262,9 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ArrowLeft, ChevronDown, X, ImageIcon, Images } from 'lucide-vue-next'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
+import { API_BASE } from '@/config.js'
 
-const API = 'http://localhost:3001/api'
+const API = `${API_BASE}/api`
 const authHeaders = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` })
 const router = useRouter()
 const route  = useRoute()
@@ -282,7 +283,7 @@ const form = ref({
 })
 
 // ── Image helpers ───────────────────────────────
-const API_URL = 'http://localhost:3001/api'
+const API_URL = `${API_BASE}/api`
 
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
